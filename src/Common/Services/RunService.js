@@ -1,0 +1,87 @@
+import Parse from "parse";
+
+// CREATE new run
+export const createRun = (distance, time, pace, location, profileId) => {
+  console.log("Creating run for profile: ", profileId);
+  const Run = Parse.Object.extend("Runs");
+  const run = new Run();
+
+  run.set("distance", distance);
+  run.set("time", time);
+  run.set("pace", pace);
+  run.set("location", location);
+
+  // connect run to profile
+  const Profile = Parse.Object.extend("Profiles");
+  const profilePointer = Profile.createWithoutData(profileId);
+  run.set("ProfilePointer", profilePointer);
+
+  return run.save().then((result) => {
+    // returns new run object
+    return result;
+  });
+};
+
+// READ get run by id
+export const getRunById = (id) => {
+  const Run = Parse.Object.extend("Runs");
+  const query = new Parse.Query(Run);
+  return query.get(id).then((result) => {
+    // return Run object with objectId: id
+    return result;
+  });
+};
+
+// cache as done in class
+export let Runs = {};
+Runs.byProfile = {};
+
+// READ get all runs for a specific profile
+export const getRunsByProfileId = (profileId) => {
+  const Run = Parse.Object.extend("Runs");
+  const Profile = Parse.Object.extend("Profile");
+
+  const query = new Parse.Query(Run);
+  const profilePointer = Profile.createWithoutData(profileId);
+  console.log("Fetching runs for profileId:", profileId);
+  query.equalTo("ProfilePointer", profilePointer);
+  query.descending("createdAt"); // Most recent first
+
+  return query
+    .find()
+    .then((results) => {
+      console.log("runs for profile: ", results);
+      // use cache
+      Runs.byProfile[profileId] = results;
+      // returns array of run objects
+      return results;
+    })
+    .catch((error) => {
+      console.log("error: ", error);
+      return [];
+    });
+};
+
+// UPDATE run by ID
+export const updateRun = (id, updates) => {
+  const Run = Parse.Object.extend("Runs");
+  const query = new Parse.Query(Run);
+  return query.get(id).then((run) => {
+    // Update fields if provided
+    if (updates.distance) run.set("distance", updates.distance);
+    if (updates.time) run.set("time", updates.time);
+    if (updates.pace) run.set("pace", updates.pace);
+    if (updates.location) run.set("location", updates.location);
+
+    return run.save();
+  });
+};
+
+// DELETE run by ID
+export const removeRun = (id) => {
+  const Run = Parse.Object.extend("Runs");
+  const query = new Parse.Query(Run);
+  return query.get(id).then((run) => {
+    return run.destroy();
+  });
+};
