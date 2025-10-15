@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
 import { getAllProfiles } from "../../Common/Services/ProfileService";
 import { getRunsByProfileId } from "../../Common/Services/RunService";
-import Components from "../Components";
+
+import Home from "../Home/Home.js";
+import About from "../About/About.js";
+import Footer from "../Shared/Footer.js";
+import ProfileRuns from "../ProfileRuns/ProfileRuns";
 
 const Main = () => {
   const [profiles, setProfiles] = useState([]);
@@ -24,11 +30,20 @@ const Main = () => {
   };
 
   return (
-    <Components
-      profiles={profiles}
-      runs={runs}
-      onSelectProfile={fetchRunsForProfile}
-    />
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={<Home profiles={profiles} onSelectProfile={fetchRunsForProfile} />}
+        />
+        <Route path="/about" element={<About />} />
+        <Route
+          path="/profile/:userId"
+          element={<ProfileRuns runs={runs} />}
+        />
+      </Routes>
+      <Footer />
+    </Router>
   );
 };
 
