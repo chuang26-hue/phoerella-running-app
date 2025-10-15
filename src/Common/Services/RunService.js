@@ -12,7 +12,7 @@ export const createRun = (distance, time, pace, location, profileId) => {
   run.set("location", location);
 
   // connect run to profile
-  const Profile = Parse.Object.extend("Profiles");
+  const Profile = Parse.Object.extend("Profile");
   const profilePointer = Profile.createWithoutData(profileId);
   run.set("ProfilePointer", profilePointer);
 

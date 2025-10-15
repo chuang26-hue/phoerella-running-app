@@ -4,11 +4,18 @@ import { useParams } from "react-router-dom";
 import { getRunsByProfileId } from "../../Common/Services/RunService";
 import { getProfileById } from "../../Common/Services/ProfileService";
 import RunCard from "./RunCard";
+import AddRunForm from "./AddRunForm"
 
 export default function ProfileRuns() {
   const { userId } = useParams();
   const [profile, setProfile] = useState(null);
   const [userRuns, setUserRuns] = useState([]);
+
+  const fetchRuns = async () => {
+    if (!userId) return;
+    const runs = await getRunsByProfileId(userId);
+    setUserRuns(runs || []);
+  };
 
   useEffect(() => {
     if (userId) {
@@ -23,6 +30,8 @@ export default function ProfileRuns() {
         <>
           <h1>{profile.get("name")}'s Runs</h1>
           <p>@{profile.get("username")}</p>
+
+           <AddRunForm profileId={userId} onAdded={fetchRuns} />
 
           <div
             style={{
