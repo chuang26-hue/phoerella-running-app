@@ -8,6 +8,8 @@ import Home from "../Home/Home.js";
 import About from "../About/About.js";
 import Footer from "../Shared/Footer.js";
 import ProfileRuns from "../ProfileRuns/ProfileRuns";
+import AuthLogin from "../Auth/AuthLogin.js";
+import AuthRegister from "../Auth/AuthRegister.js";
 
 const Main = () => {
   const [profiles, setProfiles] = useState([]);
@@ -41,6 +43,8 @@ const Main = () => {
           path="/profile/:userId"
           element={<ProfileRuns runs={runs} />}
         />
+        <Route path="/login" element={<AuthLogin />} />
+        <Route path="/register" element={<AuthRegister />} />
       </Routes>
       <Footer />
     </Router>
