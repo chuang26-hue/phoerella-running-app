@@ -5,7 +5,7 @@ import AuthForm from "./AuthForm.js";
 
 const AuthLogin = () => {
   const [userCredentials, setUserCredentials] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const [attemptLogin, setAttemptLogin] = useState(false);

@@ -32,15 +32,27 @@ const AuthForm = ({
                 required
               />
             </div>
+            <div>
+            <label>Email</label>
+            <br />
+            <input
+                type="email"
+                name="email"
+                value={user.email}
+                onChange={onChange}
+                required
+            />
+            </div>
           </>
         )}
+        
         <div>
-          <label>Email</label>
+          <label>Username</label>
           <br />
           <input
-            type="email"
-            name="email"
-            value={user.email}
+            type="username"
+            name="username"
+            value={user.username}
             onChange={onChange}
             required
           />

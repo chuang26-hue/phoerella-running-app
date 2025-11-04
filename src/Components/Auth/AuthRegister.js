@@ -7,6 +7,7 @@ const AuthRegister = () => {
   const [newUser, setNewUser] = useState({
     firstName: "",
     lastName: "",
+    username:"",
     email: "",
     password: "",
   });

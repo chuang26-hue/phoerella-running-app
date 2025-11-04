@@ -23,7 +23,8 @@ const createProfileForUser = (user, userData) => {
   const Profile = Parse.Object.extend("Profile");
   const profile = new Profile();
 
-  profile.set("username", `${userData.email}`);
+  profile.set("username", `${userData.username}`);
+  profile.set("email", `${userData.email}`);
   profile.set("name", `${userData.firstName} ${userData.lastName}`);
   profile.set("user", user); // pointer to User object
 
