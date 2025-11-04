@@ -7,6 +7,7 @@ export const createUser = (newUser) => {
   user.set("firstName", newUser.firstName);
   user.set("lastName", newUser.lastName);
   user.set("email", newUser.email);
+  user.set("username", newUser.username);
   user.set("password", newUser.password);
 
   return user
@@ -42,9 +43,9 @@ const createProfileForUser = (user, userData) => {
 };
 
 export const loginUser = (userCredentials) => {
-  const { email, password } = userCredentials;
+  const { username, password } = userCredentials;
 
-  return Parse.User.logIn(email, password)
+  return Parse.User.logIn(username, password)
     .then((loggedInUser) => {
       console.log("User logged in successfully:", loggedInUser);
       return loggedInUser;

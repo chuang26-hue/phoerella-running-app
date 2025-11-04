@@ -3,12 +3,12 @@ const AuthForm = ({
   onChange,
   onSubmit,
   submitText,
-  showNameFields = true,
+  isRegister = true,
 }) => {
   return (
     <div>
       <form onSubmit={onSubmit}>
-        {showNameFields && (
+        {isRegister && (
           <>
             <div>
               <label>First Name</label>
