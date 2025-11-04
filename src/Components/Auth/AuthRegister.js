@@ -7,13 +7,13 @@ const AuthRegister = () => {
   const [newUser, setNewUser] = useState({
     firstName: "",
     lastName: "",
-    username:"",
+    username: "",
     email: "",
     password: "",
   });
 
   const [add, setAdd] = useState(false);
-  const [registered, setRegistered] = useState(false); // new state
+  const [registered, setRegistered] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,7 +23,7 @@ const AuthRegister = () => {
           alert(
             `${userCreated.get("firstName")}, you successfully registered!`
           );
-          setRegistered(true); // mark as registered
+          setRegistered(true);
         }
         setAdd(false);
       });
@@ -37,7 +37,7 @@ const AuthRegister = () => {
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
-    setAdd(true); // trigger registration
+    setAdd(true);
   };
 
   return (
@@ -48,6 +48,9 @@ const AuthRegister = () => {
           onChange={onChangeHandler}
           onSubmit={onSubmitHandler}
           submitText="Register"
+          isRegister={true}
+          linkText="Already have an account? Login here"
+          linkPath="/login"
         />
       ) : (
         <div>
