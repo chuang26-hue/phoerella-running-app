@@ -7,6 +7,7 @@ export const createUser = (newUser) => {
   user.set("firstName", newUser.firstName);
   user.set("lastName", newUser.lastName);
   user.set("email", newUser.email);
+  user.set("username", newUser.username);
   user.set("password", newUser.password);
 
   return user
@@ -23,7 +24,8 @@ const createProfileForUser = (user, userData) => {
   const Profile = Parse.Object.extend("Profile");
   const profile = new Profile();
 
-  profile.set("username", `${userData.email}`);
+  profile.set("username", `${userData.username}`);
+  profile.set("email", `${userData.email}`);
   profile.set("name", `${userData.firstName} ${userData.lastName}`);
   profile.set("user", user); // pointer to User object
 
@@ -41,9 +43,9 @@ const createProfileForUser = (user, userData) => {
 };
 
 export const loginUser = (userCredentials) => {
-  const { email, password } = userCredentials;
+  const { username, password } = userCredentials;
 
-  return Parse.User.logIn(email, password)
+  return Parse.User.logIn(username, password)
     .then((loggedInUser) => {
       console.log("User logged in successfully:", loggedInUser);
       return loggedInUser;
@@ -51,5 +53,22 @@ export const loginUser = (userCredentials) => {
     .catch((error) => {
       alert(`Login failed: ${error.message}`);
       return null;
+    });
+};
+
+export const checkUser = () => {
+  return Parse.User.current()?.authenticated;
+};
+
+export const logoutUser = () => {
+  return Parse.User.logOut()
+    .then(() => {
+      console.log("User logged out successfully");
+      return true;
+    })
+    .catch((error) => {
+      console.error("Logout error:", error);
+      alert(`Logout failed: ${error.message}`);
+      return false;
     });
 };

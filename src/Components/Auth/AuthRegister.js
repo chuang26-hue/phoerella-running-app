@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { createUser } from "./AuthService.js";
+import { checkUser, createUser } from "./AuthService.js";
 import AuthForm from "./AuthForm.js";
 import { useNavigate } from "react-router-dom";
 
@@ -7,13 +7,22 @@ const AuthRegister = () => {
   const [newUser, setNewUser] = useState({
     firstName: "",
     lastName: "",
+    username: "",
     email: "",
     password: "",
   });
 
   const [add, setAdd] = useState(false);
-  const [registered, setRegistered] = useState(false); // new state
+  const [registered, setRegistered] = useState(false);
   const navigate = useNavigate();
+
+   
+  useEffect(() => {
+    if (checkUser()) {
+      alert("You are already logged in");
+      navigate("/");
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (newUser && add) {
@@ -22,7 +31,7 @@ const AuthRegister = () => {
           alert(
             `${userCreated.get("firstName")}, you successfully registered!`
           );
-          setRegistered(true); // mark as registered
+          setRegistered(true);
         }
         setAdd(false);
       });
@@ -36,7 +45,7 @@ const AuthRegister = () => {
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
-    setAdd(true); // trigger registration
+    setAdd(true);
   };
 
   return (
@@ -47,6 +56,9 @@ const AuthRegister = () => {
           onChange={onChangeHandler}
           onSubmit={onSubmitHandler}
           submitText="Register"
+          isRegister={true}
+          linkText="Already have an account? Login here"
+          linkPath="/login"
         />
       ) : (
         <div>

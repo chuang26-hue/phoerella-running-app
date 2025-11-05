@@ -1,23 +1,31 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "./AuthService.js";
+import { checkUser, loginUser } from "./AuthService.js";
 import AuthForm from "./AuthForm.js";
 
 const AuthLogin = () => {
   const [userCredentials, setUserCredentials] = useState({
-    email: "",
+    username: "",
     password: "",
   });
   const [attemptLogin, setAttemptLogin] = useState(false);
 
-  const navigate = useNavigate(); // ✅ for routing after login
+  const navigate = useNavigate();
+
+  useEffect(() => {
+  const currentUser = checkUser();
+  if (currentUser) {
+    alert("Already logged in");
+    navigate("/user");
+  }
+}, [navigate]);
 
   useEffect(() => {
     if (attemptLogin) {
       loginUser(userCredentials).then((loggedInUser) => {
         if (loggedInUser) {
           alert(`Welcome back, ${loggedInUser.get("firstName")}!`);
-          navigate("/user"); // ✅ go to protected route
+          navigate("/user");
         } else {
           alert("Invalid email or password. Please try again.");
         }
@@ -42,7 +50,9 @@ const AuthLogin = () => {
       onChange={onChangeHandler}
       onSubmit={onSubmitHandler}
       submitText="Login"
-      showNameFields={false}
+      isRegister={false}
+      linkText="Don't have an account? Register here"
+      linkPath="/register"
     />
   );
 };
