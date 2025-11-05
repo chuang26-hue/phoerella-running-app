@@ -55,3 +55,20 @@ export const loginUser = (userCredentials) => {
       return null;
     });
 };
+
+export const checkUser = () => {
+  return Parse.User.current()?.authenticated;
+};
+
+export const logoutUser = () => {
+  return Parse.User.logOut()
+    .then(() => {
+      console.log("User logged out successfully");
+      return true;
+    })
+    .catch((error) => {
+      console.error("Logout error:", error);
+      alert(`Logout failed: ${error.message}`);
+      return false;
+    });
+};

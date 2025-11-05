@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "./AuthService.js";
+import { checkUser, loginUser } from "./AuthService.js";
 import AuthForm from "./AuthForm.js";
 
 const AuthLogin = () => {
@@ -11,6 +11,14 @@ const AuthLogin = () => {
   const [attemptLogin, setAttemptLogin] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+  const currentUser = checkUser();
+  if (currentUser) {
+    alert("Already logged in");
+    navigate("/user");
+  }
+}, [navigate]);
 
   useEffect(() => {
     if (attemptLogin) {

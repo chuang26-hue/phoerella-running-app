@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { checkUser } from "./AuthService.js";
 
 const AuthModule = () => {
     const navigate = useNavigate();
