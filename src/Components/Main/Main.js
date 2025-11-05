@@ -10,6 +10,7 @@ import Footer from "../Shared/Footer.js";
 import ProfileRuns from "../ProfileRuns/ProfileRuns";
 import AuthLogin from "../Auth/AuthLogin.js";
 import AuthRegister from "../Auth/AuthRegister.js";
+import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 
 const Main = () => {
   const [profiles, setProfiles] = useState([]);
@@ -41,7 +42,7 @@ const Main = () => {
         <Route path="/about" element={<About />} />
         <Route
           path="/profile/:userId"
-          element={<ProfileRuns runs={runs} />}
+          element={<ProtectedRoute element={ProfileRuns} runs={runs} />}
         />
         <Route path="/login" element={<AuthLogin />} />
         <Route path="/register" element={<AuthRegister />} />

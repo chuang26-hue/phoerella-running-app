@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { checkUser, loginUser } from "./AuthService.js";
 import AuthForm from "./AuthForm.js";
+import Parse from "parse";
 
 const AuthLogin = () => {
   const [userCredentials, setUserCredentials] = useState({
@@ -12,20 +13,43 @@ const AuthLogin = () => {
 
   const navigate = useNavigate();
 
+  // Helper function to get profile ID from user
+  const getProfileIdFromUser = async (user) => {
+    const Profile = Parse.Object.extend("Profile");
+    const query = new Parse.Query(Profile);
+    query.equalTo("user", user);
+    const profile = await query.first();
+    return profile ? profile.id : null;
+  };
+
   useEffect(() => {
-  const currentUser = checkUser();
-  if (currentUser) {
-    alert("Already logged in");
-    navigate("/user");
-  }
-}, [navigate]);
+    const currentUser = checkUser();
+    if (currentUser) {
+      alert("Already logged in");
+      // Get their profile objectId and redirect
+      getProfileIdFromUser(currentUser).then((profileId) => {
+        if (profileId) {
+          navigate(`/profile/${profileId}`);
+        } else {
+          navigate("/"); // No profile found, go to home
+        }
+      });
+    }
+  }, [navigate]);
 
   useEffect(() => {
     if (attemptLogin) {
       loginUser(userCredentials).then((loggedInUser) => {
         if (loggedInUser) {
           alert(`Welcome back, ${loggedInUser.get("firstName")}!`);
-          navigate("/user");
+          // Get their profile objectId and redirect
+          getProfileIdFromUser(loggedInUser).then((profileId) => {
+            if (profileId) {
+              navigate(`/profile/${profileId}`);
+            } else {
+              navigate("/"); // No profile found, go to home
+            }
+          });
         } else {
           alert("Invalid email or password. Please try again.");
         }
