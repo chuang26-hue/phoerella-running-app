@@ -84,7 +84,6 @@ Your app will be built into the `/build` directory and ready for production.
 
 ## 🏗️ Future Work
 
-- Implement backend integration for user authentication and data storage  
 - Add real-time activity sharing with friends  
 - Support for wearable fitness tracker data imports  
 
