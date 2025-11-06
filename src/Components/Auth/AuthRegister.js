@@ -13,10 +13,8 @@ const AuthRegister = () => {
   });
 
   const [add, setAdd] = useState(false);
-  const [registered, setRegistered] = useState(false);
   const navigate = useNavigate();
 
-   
   useEffect(() => {
     if (checkUser()) {
       alert("You are already logged in");
@@ -31,12 +29,14 @@ const AuthRegister = () => {
           alert(
             `${userCreated.get("firstName")}, you successfully registered!`
           );
-          setRegistered(true);
+          // User is automatically logged in after signup
+          // Navigate them directly to the home page or dashboard
+          navigate("/");
         }
         setAdd(false);
       });
     }
-  }, [newUser, add]);
+  }, [newUser, add, navigate]);
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
@@ -50,27 +50,15 @@ const AuthRegister = () => {
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      {!registered ? (
-        <AuthForm
-          user={newUser}
-          onChange={onChangeHandler}
-          onSubmit={onSubmitHandler}
-          submitText="Register"
-          isRegister={true}
-          linkText="Already have an account? Login here"
-          linkPath="/login"
-        />
-      ) : (
-        <div>
-          <p>Registration successful! Please log in.</p>
-          <button
-            style={{ padding: "10px 20px" }}
-            onClick={() => navigate("/login")}
-          >
-            Go to Login
-          </button>
-        </div>
-      )}
+      <AuthForm
+        user={newUser}
+        onChange={onChangeHandler}
+        onSubmit={onSubmitHandler}
+        submitText="Register"
+        isRegister={true}
+        linkText="Already have an account? Login here"
+        linkPath="/login"
+      />
     </div>
   );
 };

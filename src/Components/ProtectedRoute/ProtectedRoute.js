@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { checkUser } from "../Auth/AuthService";
 
 const ProtectedRoute = ({ element: Component, ...rest }) => {
-  console.log("element: ", Component);
+  //console.log("element: ", Component);
   const navigate = useNavigate();
 
   if (checkUser()) {
