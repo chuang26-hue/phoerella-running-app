@@ -11,6 +11,7 @@ import ProfileRuns from "../ProfileRuns/ProfileRuns";
 import AuthLogin from "../Auth/AuthLogin.js";
 import AuthRegister from "../Auth/AuthRegister.js";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import ProtectedAuthRoute from "../ProtectedRoute/ProtectedAuthRoute"; // ADD THIS
 
 const Main = () => {
   const [profiles, setProfiles] = useState([]);
@@ -20,7 +21,7 @@ const Main = () => {
   useEffect(() => {
     getAllProfiles().then((results) => {
       console.log("Fetched profiles:", results);
-      setProfiles(results); // parse objects
+      setProfiles(results);
     });
   }, []);
 
@@ -28,7 +29,7 @@ const Main = () => {
   const fetchRunsForProfile = (profileId) => {
     getRunsByProfileId(profileId).then((results) => {
       console.log("Fetched runs:", results);
-      setRuns(results); // parse objects
+      setRuns(results);
     });
   };
 
@@ -44,8 +45,9 @@ const Main = () => {
           path="/profile/:userId"
           element={<ProtectedRoute element={ProfileRuns} runs={runs} />}
         />
-        <Route path="/login" element={<AuthLogin />} />
-        <Route path="/register" element={<AuthRegister />} />
+        {/* Wrap auth routes with ProtectedAuthRoute */}
+        <Route path="/login" element={<ProtectedAuthRoute element={AuthLogin} />} />
+        <Route path="/register" element={<ProtectedAuthRoute element={AuthRegister} />} />
       </Routes>
       <Footer />
     </Router>

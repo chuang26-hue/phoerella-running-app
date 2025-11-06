@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { checkUser, loginUser } from "./AuthService.js";
+import { loginUser } from "./AuthService.js";
 import AuthForm from "./AuthForm.js";
 import Parse from "parse";
 
@@ -21,21 +21,6 @@ const AuthLogin = () => {
     const profile = await query.first();
     return profile ? profile.id : null;
   };
-
-  useEffect(() => {
-    const currentUser = checkUser();
-    if (currentUser) {
-      alert("Already logged in");
-      // Get their profile objectId and redirect
-      getProfileIdFromUser(currentUser).then((profileId) => {
-        if (profileId) {
-          navigate(`/profile/${profileId}`);
-        } else {
-          navigate("/"); // No profile found, go to home
-        }
-      });
-    }
-  }, [navigate]);
 
   useEffect(() => {
     if (attemptLogin) {

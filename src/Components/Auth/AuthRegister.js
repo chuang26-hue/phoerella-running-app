@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { checkUser, createUser } from "./AuthService.js";
+import { createUser } from "./AuthService.js";
 import AuthForm from "./AuthForm.js";
 import { useNavigate } from "react-router-dom";
 import Parse from "parse";
@@ -24,13 +24,6 @@ const AuthRegister = () => {
     const profile = await query.first();
     return profile ? profile.id : null;
   };
-
-  useEffect(() => {
-    if (checkUser()) {
-      alert("You are already logged in");
-      navigate("/");
-    }
-  }, [navigate]);
 
   useEffect(() => {
     if (newUser && add) {
