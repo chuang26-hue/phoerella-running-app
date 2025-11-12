@@ -1,16 +1,19 @@
-// src/Components/ProfileRuns/ProfileRuns.js
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getRunsByProfileId } from "../../Common/Services/RunService";
 import { getProfileById } from "../../Common/Services/ProfileService";
+import { getFollowerCount, getFollowingCount } from "../../Common/Services/FollowService";
 import Parse from "parse";
 import RunCard from "./RunCard";
 import AddRunForm from "./AddRunForm";
+import FollowButton from "./FollowButton";
 
 export default function ProfileRuns() {
   const { userId } = useParams();
   const [profile, setProfile] = useState(null);
   const [userRuns, setUserRuns] = useState([]);
+  const [followerCount, setFollowerCount] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
 
   const fetchRuns = async () => {
     if (!userId) return;
@@ -22,10 +25,11 @@ export default function ProfileRuns() {
     if (userId) {
       getProfileById(userId).then(setProfile);
       getRunsByProfileId(userId).then(setUserRuns);
+      getFollowerCount(userId).then(setFollowerCount);
+      getFollowingCount(userId).then(setFollowingCount);
     }
   }, [userId]);
 
-  // Compare the profile's user pointer with the logged-in user
   const currentUser = Parse.User.current();
   const isOwnProfile = currentUser && profile && profile.get("user")?.id === currentUser.id;
 
@@ -54,10 +58,22 @@ export default function ProfileRuns() {
                 }}
               />
             )}
-            <h1 style={{ margin: 0 }}>{profile.get("name")}'s Runs</h1>
+            <div style={{ flex: 1 }}>
+              <h1 style={{ margin: 0 }}>{profile.get("name")}'s Runs</h1>
+              <p style={{ margin: "0.5rem 0" }}>@{profile.get("username")}</p>
+              {/* Follower stats */}
+              <div style={{ fontSize: "14px", color: "#666" }}>
+                <span style={{ marginRight: "1rem" }}>
+                  <strong>{followerCount}</strong> followers
+                </span>
+                <span>
+                  <strong>{followingCount}</strong> following
+                </span>
+              </div>
+            </div>
+            {/* Follow button */}
+            <FollowButton profileId={userId} />
           </div>
-
-          <p>@{profile.get("username")}</p>
 
           {isOwnProfile && <AddRunForm profileId={userId} onAdded={fetchRuns} />}
 

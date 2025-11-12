@@ -5,11 +5,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Parse from "parse";
 import ProfileCard from "./ProfileCard";
+import SearchBar from "./SearchBar";
 import { logoutUser } from "../Auth/AuthService";
 
 export default function Home({ profiles }) {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   // Check if user is logged in
   useEffect(() => {
@@ -26,11 +28,22 @@ export default function Home({ profiles }) {
     });
   };
 
+  const filteredProfiles = profiles.filter((profile) => {
+    if (!searchTerm) return true; // Show all if no search term
+
+    const searchLower = searchTerm.toLowerCase();
+    const name = profile.get("name")?.toLowerCase() || "";
+    const username = profile.get("username")?.toLowerCase() || "";
+
+    return name.includes(searchLower) || username.includes(searchLower);
+  });
+
   return (
     <section style={{ padding: "2rem" }}>
       <h1>🏃 Welcome to our Running App</h1>
       <p>Select a runner to view their stats!</p>
 
+      <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
       <div
         style={{
           display: "flex",
@@ -40,7 +53,7 @@ export default function Home({ profiles }) {
         }}
       >
         {profiles.length > 0 ? (
-          profiles.map((profile) => (
+          filteredProfiles.map((profile) => (
             <ProfileCard key={profile.id} profile={profile} />
           ))
         ) : (
