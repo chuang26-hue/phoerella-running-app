@@ -24,12 +24,13 @@ export default function ProfileCard({ profile }) {
         border: "1px solid #ddd",
         borderRadius: "12px",
         padding: "1rem",
-        margin: "1rem",
         textAlign: "center",
-        width: "200px",
+        width: "100%", // Changed from "200px" to take full grid cell width
         cursor: "pointer",
         transition: "transform 0.2s",
       }}
+      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     >
       {profilePictureUrl && (
         <img
@@ -49,4 +50,3 @@ export default function ProfileCard({ profile }) {
     </div>
   );
 }
-
