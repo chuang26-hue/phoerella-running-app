@@ -1,7 +1,6 @@
 // src/Components/ProfileRuns/AddRunForm.js
 // goal is to create a form to get users input, to add a run to their profile
 import React, { useState, useEffect, useRef } from "react";
-import Parse from "parse";
 import { createRun } from "../../Common/Services/RunService"; // adjust path if needed
 import { getAllProfiles } from "../../Common/Services/ProfileService";
 
