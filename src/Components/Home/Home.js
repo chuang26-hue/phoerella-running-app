@@ -32,8 +32,8 @@ export default function Home({ profiles }) {
     if (!searchTerm) return true; // Show all if no search term
 
     const searchLower = searchTerm.toLowerCase();
-    const name = profile.get("name")?.toLowerCase() || "";
-    const username = profile.get("username")?.toLowerCase() || "";
+    const name = profile.get("name").toLowerCase() || "";
+    const username = profile.get("username").toLowerCase() || "";
 
     return name.includes(searchLower) || username.includes(searchLower);
   });
