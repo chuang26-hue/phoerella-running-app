@@ -1,7 +1,8 @@
 import Parse from "parse";
 
 // CREATE new run
-export const createRun = (distance, time, pace, location, profileId) => {
+export const createRun = (distance, time, pace, location, profileId, 
+  taggedRunners = []) => {
   console.log("Creating run for profile: ", profileId);
   const Run = Parse.Object.extend("Runs");
   const run = new Run();
@@ -16,6 +17,16 @@ export const createRun = (distance, time, pace, location, profileId) => {
   const profilePointer = Profile.createWithoutData(profileId);
   run.set("ProfilePointer", profilePointer);
 
+  // Set tagged runners as array of Profile pointers
+  if (taggedRunners && taggedRunners.length > 0) {
+    const taggedPointers = taggedRunners.map((runnerId) => {
+      return Profile.createWithoutData(runnerId);
+    });
+    run.set("taggedRunners", taggedPointers);
+  } else {
+    run.set("taggedRunners", []);
+  }
+
   return run.save().then((result) => {
     // returns new run object
     return result;
@@ -26,6 +37,7 @@ export const createRun = (distance, time, pace, location, profileId) => {
 export const getRunById = (id) => {
   const Run = Parse.Object.extend("Runs");
   const query = new Parse.Query(Run);
+  query.include("taggedRunners"); // Include tagged runners in query
   return query.get(id).then((result) => {
     // return Run object with objectId: id
     return result;
@@ -45,6 +57,7 @@ export const getRunsByProfileId = (profileId) => {
   const profilePointer = Profile.createWithoutData(profileId);
   console.log("Fetching runs for profileId:", profileId);
   query.equalTo("ProfilePointer", profilePointer);
+  query.include("taggedRunners"); // Include tagged runners in query
   query.descending("createdAt"); // Most recent first
 
   return query
