@@ -6,7 +6,7 @@ export const followUser = async (followerProfileId, followingProfileId) => {
     const Follows = Parse.Object.extend("Follows");
     const follow = new Follows();
 
-    // Create pointers to existing profiles (not creating new profiles!)
+    // Create pointers to existing profiles (not creating new profiles)
     const Profile = Parse.Object.extend("Profile");
     
     const followerPointer = new Profile();
