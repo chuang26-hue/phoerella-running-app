@@ -29,6 +29,11 @@ export default function Home({ profiles }) {
   };
 
   const filteredProfiles = profiles.filter((profile) => {
+    // Guard: ensure profile is a valid Parse object before calling .get()
+    if (!profile || typeof profile.get !== 'function') {
+      return false;
+    }
+    
     if (!searchTerm) return true; // Show all if no search term
 
     const searchLower = searchTerm.toLowerCase();

@@ -23,19 +23,57 @@ export default function ProfileRuns() {
 
   useEffect(() => {
     if (userId) {
-      getProfileById(userId).then(setProfile);
-      getRunsByProfileId(userId).then(setUserRuns);
-      getFollowerCount(userId).then(setFollowerCount);
-      getFollowingCount(userId).then(setFollowingCount);
+      getProfileById(userId)
+        .then(setProfile)
+        .catch((error) => {
+          console.error("Error fetching profile:", error);
+          setProfile(null);
+        });
+      getRunsByProfileId(userId)
+        .then(setUserRuns)
+        .catch((error) => {
+          console.error("Error fetching runs:", error);
+          setUserRuns([]);
+        });
+      getFollowerCount(userId)
+        .then(setFollowerCount)
+        .catch((error) => {
+          console.error("Error fetching follower count:", error);
+          setFollowerCount(0);
+        });
+      getFollowingCount(userId)
+        .then(setFollowingCount)
+        .catch((error) => {
+          console.error("Error fetching following count:", error);
+          setFollowingCount(0);
+        });
     }
   }, [userId]);
 
   const currentUser = Parse.User.current();
-  const isOwnProfile = currentUser && profile && profile.get("user")?.id === currentUser.id;
+  // Only calculate isOwnProfile when profile is a valid Parse object
+  const isOwnProfile = currentUser && profile && typeof profile.get === 'function' && profile.get("user")?.id === currentUser.id;
+
+  // Safely get profile picture URL
+  const getProfilePictureUrl = (profilePictureFile) => {
+    if (!profilePictureFile) return null;
+    if (typeof profilePictureFile === 'string') {
+      return profilePictureFile; // Already a URL string
+    }
+    if (typeof profilePictureFile.url === 'function') {
+      return profilePictureFile.url(); // Parse File object
+    }
+    return null;
+  };
+
+  // Get profile picture URL if profile is valid
+  const profilePictureUrl = profile && typeof profile.get === 'function' 
+    ? getProfilePictureUrl(profile.get("profilePicture"))
+    : null;
 
   return (
     <section style={{ padding: "2rem" }}>
-      {profile ? (
+      {profile && typeof profile.get === 'function' ? (
         <>
           {/* Profile header: picture + name side by side */}
           <div
@@ -46,9 +84,9 @@ export default function ProfileRuns() {
               marginBottom: "1rem",
             }}
           >
-            {profile.get("profilePicture") && (
+            {profilePictureUrl && (
               <img
-                src={profile.get("profilePicture").url()}
+                src={profilePictureUrl}
                 alt={`${profile.get("name")}'s profile`}
                 style={{
                   width: "80px",
