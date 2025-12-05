@@ -86,6 +86,7 @@ export const isFollowing = async (followerProfileId, followingProfileId) => {
 };
 
 // Get follower count for a profile
+
 export const getFollowerCount = async (profileId) => {
   try {
     const Follows = Parse.Object.extend("Follows");
