@@ -36,6 +36,8 @@ const FollowButton = ({ profileId, onFollowChange }) => {
   }, [profileId]);
 
   const handleFollowToggle = async () => {
+    // Store previous state in case of error
+    const previousFollowingState = following;
     setLoading(true);
 
     try {
@@ -48,14 +50,16 @@ const FollowButton = ({ profileId, onFollowChange }) => {
       }
 
       if (onFollowChange) {
-        onFollowChange();
+        await onFollowChange();
       }
     } catch (error) {
+      // Revert state on error to prevent UI inconsistency
+      setFollowing(previousFollowingState);
       alert("Error updating follow status. Please try again.");
-      console.error(error);
+      console.error("Follow action failed:", error);
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   };
 
   // Don't show button if viewing own profile
@@ -70,7 +74,7 @@ const FollowButton = ({ profileId, onFollowChange }) => {
       style={{
         padding: "10px 20px",
         cursor: loading ? "not-allowed" : "pointer",
-        backgroundColor: following ? "#6c757d" : "#007bff",
+        backgroundColor: loading ? "#6c757d" : (following ? "#6c757d" : "#007bff"),
         color: "white",
         border: "none",
         borderRadius: "5px",
