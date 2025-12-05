@@ -5,6 +5,11 @@ import { useNavigate } from "react-router-dom";
 export default function ProfileCard({ profile }) {
   const navigate = useNavigate();
 
+  // Guard: ensure profile is a valid Parse object
+  if (!profile || typeof profile.get !== 'function') {
+    return null;
+  }
+
   const handleClick = () => {
     navigate(`/profile/${profile.id}`);
   };
@@ -13,9 +18,19 @@ export default function ProfileCard({ profile }) {
   const username = profile.get("username");
   const email = profile.get("email");
   const profilePictureFile = profile.get("profilePicture");
-  const profilePictureUrl = profilePictureFile
-    ? profilePictureFile.url()
-    : null;
+  
+  // Safely get profile picture URL
+  // profilePictureFile could be: null, a Parse File object, or a string URL
+  let profilePictureUrl = null;
+  if (profilePictureFile) {
+    if (typeof profilePictureFile === 'string') {
+      // Already a URL string
+      profilePictureUrl = profilePictureFile;
+    } else if (typeof profilePictureFile.url === 'function') {
+      // Parse File object
+      profilePictureUrl = profilePictureFile.url();
+    }
+  }
 
   return (
     <div

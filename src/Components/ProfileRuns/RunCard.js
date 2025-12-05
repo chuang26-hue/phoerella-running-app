@@ -1,8 +1,10 @@
 // src/Components/Profile/RunCard.js
 // Formatting to display runs on a profile page
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function RunCard({ run }) {
+  const navigate = useNavigate();
   const distance = run.get("distance");
   const time = run.get("time");
   const pace = run.get("pace");
@@ -10,38 +12,127 @@ export default function RunCard({ run }) {
   const date = run.get("date")
     ? new Date(run.get("date")).toLocaleDateString()
     : "";
+  const taggedRunners = run.get("taggedRunners") || [];
 
-    return (
-      <div
-        style={{
-          border: "1px solid #ddd",
-          borderRadius: "12px",
-          padding: "1rem",
-          margin: "1rem",
-          textAlign: "center",
-          width: "200px",
-          cursor: "default",
-          transition: "transform 0.2s",
-        }}
-      >
-        <h3 style={{ marginBottom: "0.5rem" }}>🏃‍♂️ Run</h3>
+  // Handle navigation to runner's profile
+  const handleRunnerClick = (runnerId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (runnerId) {
+      navigate(`/profile/${runnerId}`);
+    }
+  };
+
+  // Format tagged runners display with clickable links
+  const formatTaggedRunners = () => {
+    if (taggedRunners.length === 0) return null;
+
+    // Process runners to get name and ID
+    const runners = taggedRunners.map((runner) => {
+      if (runner && typeof runner.get === "function") {
+        return {
+          id: runner.id,
+          name: runner.get("name") || "Unknown",
+        };
+      }
+      return { id: null, name: "Unknown" };
+    });
+
+    // Filter out invalid runners
+    const validRunners = runners.filter((r) => r.id);
+
+    if (validRunners.length === 0) return null;
+
+    // Render clickable runner name
+    const renderRunnerLink = (runner) => {
+      return (
+        <span
+          key={runner.id}
+          onClick={(e) => handleRunnerClick(runner.id, e)}
+          style={{
+            color: "#007bff",
+            cursor: "pointer",
+            textDecoration: "none",
+            transition: "all 0.2s",
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.textDecoration = "underline";
+            e.currentTarget.style.color = "#0056b3";
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.textDecoration = "none";
+            e.currentTarget.style.color = "#007bff";
+          }}
+        >
+          {runner.name}
+        </span>
+      );
+    };
+
+    if (validRunners.length === 1) {
+      return (
+        <span>
+          with {renderRunnerLink(validRunners[0])}
+        </span>
+      );
+    } else if (validRunners.length === 2) {
+      return (
+        <span>
+          with {renderRunnerLink(validRunners[0])} and {renderRunnerLink(validRunners[1])}
+        </span>
+      );
+    } else {
+      const last = validRunners[validRunners.length - 1];
+      const others = validRunners.slice(0, -1);
+      return (
+        <span>
+          with {others.map((runner, index) => (
+            <React.Fragment key={runner.id}>
+              {renderRunnerLink(runner)}
+              {index < others.length - 1 && ", "}
+            </React.Fragment>
+          ))}, and {renderRunnerLink(last)}
+        </span>
+      );
+    }
+  };
+
+  return (
+    <div
+      style={{
+        border: "1px solid #ddd",
+        borderRadius: "12px",
+        padding: "1rem",
+        margin: "1rem",
+        textAlign: "center",
+        width: "200px",
+        cursor: "default",
+        transition: "transform 0.2s",
+      }}
+    >
+      <h3 style={{ marginBottom: "0.5rem" }}>🏃‍♂️ Run</h3>
+      <p>
+        <strong>Distance:</strong> {distance} km
+      </p>
+      <p>
+        <strong>Time:</strong> {time} minutes
+      </p>
+      <p>
+        <strong>Pace:</strong> {pace} min/km
+      </p>
+      {location && (
         <p>
-          <strong>Distance:</strong> {distance} km
+          <strong>Location:</strong> {location}
         </p>
-        <p>
-          <strong>Time:</strong> {time} minutes
+      )}
+      {taggedRunners.length > 0 && (
+        <p style={{ fontSize: "0.9rem", marginTop: "0.5rem", fontStyle: "italic" }}>
+          {formatTaggedRunners()}
         </p>
-        <p>
-          <strong>Pace:</strong> {pace} min/km
-        </p>
-        {location && ( 
-          <p>
-            <strong>Location:</strong> {location}
-          </p>
-        )}
-        <p style={{ fontSize: "0.8rem", color: "#777" }}>
-          {date && `Date: ${date}`}
-        </p>
-      </div>
-    );
-  }
+      )}
+      <p style={{ fontSize: "0.8rem", color: "#777" }}>
+        {date && `Date: ${date}`}
+      </p>
+    </div>
+  );
+}
