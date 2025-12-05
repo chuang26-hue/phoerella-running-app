@@ -8,6 +8,10 @@ const Footer = () => (
         </li>
 
         <li>
+          <Link to="/users"> Users </Link>
+        </li>
+
+        <li>
           <Link to="/about"> About </Link>
         </li>
       </ul>

@@ -122,3 +122,26 @@ export const getFollowingCount = async (profileId) => {
     return 0;
   }
 };
+
+// Get all profiles that a user follows
+export const getFollowingProfiles = async (followerProfileId) => {
+  try {
+    const Follows = Parse.Object.extend("Follows");
+    const query = new Parse.Query(Follows);
+
+    const Profile = Parse.Object.extend("Profile");
+    const followerPointer = new Profile();
+    followerPointer.id = followerProfileId;
+
+    query.equalTo("follower", followerPointer);
+    query.include("following"); // Include the full profile objects
+    const follows = await query.find();
+    
+    // Extract the profile objects from the follow relationships
+    const profiles = follows.map((follow) => follow.get("following"));
+    return profiles;
+  } catch (error) {
+    console.error("Error getting following profiles:", error);
+    return [];
+  }
+};

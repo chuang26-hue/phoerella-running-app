@@ -5,6 +5,7 @@ import { getAllProfiles } from "../../Common/Services/ProfileService";
 import { getRunsByProfileId } from "../../Common/Services/RunService";
 
 import Home from "../Home/Home.js";
+import Users from "../Users/Users.js";
 import About from "../About/About.js";
 import Footer from "../Shared/Footer.js";
 import ProfileRuns from "../ProfileRuns/ProfileRuns";
@@ -38,7 +39,11 @@ const Main = () => {
       <Routes>
         <Route
           path="/"
-          element={<Home profiles={profiles} onSelectProfile={fetchRunsForProfile} />}
+          element={<Home />}
+        />
+        <Route
+          path="/users"
+          element={<Users profiles={profiles} />}
         />
         <Route path="/about" element={<About />} />
         <Route
