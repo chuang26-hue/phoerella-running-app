@@ -98,3 +98,37 @@ export const removeRun = (id) => {
     return run.destroy();
   });
 };
+
+// Get all runs from multiple profiles (for feed)
+export const getRunsByProfileIds = (profileIds) => {
+  if (!profileIds || profileIds.length === 0) {
+    return Promise.resolve([]);
+  }
+
+  const Run = Parse.Object.extend("Runs");
+  const Profile = Parse.Object.extend("Profile");
+
+  const query = new Parse.Query(Run);
+  
+  // Create profile pointers for all followed profiles
+  const profilePointers = profileIds.map((profileId) => {
+    return Profile.createWithoutData(profileId);
+  });
+  
+  // Query runs where ProfilePointer is in the array of followed profiles
+  query.containedIn("ProfilePointer", profilePointers);
+  query.include("taggedRunners"); // Include tagged runners in query
+  query.include("ProfilePointer"); // Include profile info
+  query.descending("createdAt"); // Most recent first
+
+  return query
+    .find()
+    .then((results) => {
+      console.log("runs from followed profiles: ", results);
+      return results;
+    })
+    .catch((error) => {
+      console.log("error fetching runs from followed profiles: ", error);
+      return [];
+    });
+};

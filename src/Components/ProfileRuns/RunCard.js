@@ -3,7 +3,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function RunCard({ run }) {
+export default function RunCard({ run, width = "200px" }) {
   const navigate = useNavigate();
   const distance = run.get("distance");
   const time = run.get("time");
@@ -105,7 +105,7 @@ export default function RunCard({ run }) {
         padding: "1rem",
         margin: "1rem",
         textAlign: "center",
-        width: "200px",
+        width: width,
         cursor: "default",
         transition: "transform 0.2s",
       }}
