@@ -40,9 +40,10 @@ export default function ProfileCard({ profile }) {
         borderRadius: "12px",
         padding: "1rem",
         textAlign: "center",
-        width: "100%", // Changed from "200px" to take full grid cell width
+        width: "200px",
         cursor: "pointer",
         transition: "transform 0.2s",
+        margin: "1rem",       
       }}
       onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
       onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
