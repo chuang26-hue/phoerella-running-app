@@ -178,31 +178,36 @@ export default function Home() {
 {loading ? (
   <p>Loading runs...</p>
 ) : !currentUser ? (
-  <p>Please log in to see run activities.</p>
-) : (
+null) : (
+  
   <InfiniteScroll
     dataLength={displayedRuns.length}
     next={loadMoreRuns}
     hasMore={hasMore}
     loader={
-      <div style={{ 
-        textAlign: "center", 
-        padding: "2rem", 
+      <div style={{
+        position: "sticky",
+        bottom: "0",
+        width: "100%",
+        background: "rgba(255,255,255,0.9)",
+        padding: "1rem",
+        textAlign: "center",
         color: "#666",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "1rem"
+        gap: "0.5rem",
+        backdropFilter: "blur(6px)"
       }}>
         <div style={{
-          width: "40px",
-          height: "40px",
-          border: "4px solid #f3f3f3",
+          width: "32px",
+          height: "32px",
+          border: "4px solid #ddd",
           borderTop: "4px solid #007bff",
           borderRadius: "50%",
           animation: "spin 1s linear infinite"
         }}></div>
-        <h4 style={{ margin: 0 }}>Loading more runs...</h4>
+        <p style={{ margin: 0 }}>Loading more runs…</p>
       </div>
     }
     endMessage={
