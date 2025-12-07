@@ -49,7 +49,7 @@ const AuthForm = ({
             </div>
           </>
         )}
-        
+
         <div>
           <label>Username</label>
           <br />
@@ -72,9 +72,24 @@ const AuthForm = ({
             required
           />
         </div>
+
         <button type="submit">{submitText}</button>
+
+        {!isRegister && (
+          <div style={{ marginTop: "10px" }}>
+            <Link
+              to="/reset-password"
+              style={{
+                textDecoration: "underline",
+                cursor: "pointer",
+              }}
+            >
+              Forgot password?
+            </Link>
+          </div>
+        )}
       </form>
-      
+
       {linkText && linkPath && (
         <div style={{ marginTop: "20px" }}>
           <Link to={linkPath}>{linkText}</Link>
