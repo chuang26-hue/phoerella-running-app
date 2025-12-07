@@ -10,13 +10,14 @@ import Footer from "../Shared/Footer.js";
 import ProfileRuns from "../ProfileRuns/ProfileRuns";
 import AuthLogin from "../Auth/AuthLogin.js";
 import AuthRegister from "../Auth/AuthRegister.js";
+import ResetPassword from "../Auth/ResetPassword.js";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
-import ProtectedAuthRoute from "../ProtectedRoute/ProtectedAuthRoute"; // ADD THIS
+import ProtectedAuthRoute from "../ProtectedRoute/ProtectedAuthRoute";
 
+console.log("ResetPassword =", ResetPassword);
 const Main = () => {
   const [profiles, setProfiles] = useState([]);
 
-  // Fetch all profiles
   useEffect(() => {
     getAllProfiles().then((results) => {
       console.log("Fetched profiles:", results);
@@ -27,23 +28,27 @@ const Main = () => {
   return (
     <Router>
       <Routes>
-        <Route
-          path="/"
-          element={<Home />}
-        />
-        <Route
-          path="/users"
-          element={<Users profiles={profiles} />}
-        />
+        <Route path="/" element={<Home />} />
+        <Route path="/users" element={<Users profiles={profiles} />} />
         <Route path="/about" element={<About />} />
+
         <Route
           path="/profile/:userId"
           element={<ProtectedRoute element={ProfileRuns} />}
         />
-        {/* Wrap auth routes with ProtectedAuthRoute */}
-        <Route path="/login" element={<ProtectedAuthRoute element={AuthLogin} />} />
-        <Route path="/register" element={<ProtectedAuthRoute element={AuthRegister} />} />
+
+        <Route path="/reset-password" element={<ResetPassword />} />
+
+        <Route
+          path="/login"
+          element={<ProtectedAuthRoute element={AuthLogin} />}
+        />
+        <Route
+          path="/register"
+          element={<ProtectedAuthRoute element={AuthRegister} />}
+        />
       </Routes>
+
       <Footer />
     </Router>
   );

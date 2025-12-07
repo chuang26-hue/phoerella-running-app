@@ -176,7 +176,29 @@ export default function Home() {
       )}
 
 {loading ? (
-  <p>Loading runs...</p>
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      marginTop: "2rem",
+      gap: "0.5rem",
+      color: "#666",
+    }}
+  >
+    <div
+      style={{
+        width: "40px",
+        height: "40px",
+        border: "4px solid #ddd",
+        borderTop: "4px solid #007bff",
+        borderRadius: "50%",
+        animation: "spin 1s linear infinite",
+      }}
+    ></div>
+    <p>Loading runs…</p>
+  </div>
 ) : !currentUser ? (
 null) : (
   
@@ -291,7 +313,7 @@ null) : (
           );
         })
       ) : (
-        <p>No runs from people you follow yet.</p>
+        <p>Follow people to see their runs! </p>
       )}
     </div>
   </InfiniteScroll>
