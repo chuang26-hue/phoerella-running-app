@@ -1,5 +1,6 @@
 // src/Components/Home/Home.js
 // Display Run activities from people you follow with infinite scroll
+import './Home.css';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Parse from "parse";
@@ -50,7 +51,7 @@ export default function Home() {
       }).then((runsData) => {
         const runs = runsData || [];
         setDisplayedRuns(runs);
-        setHasMore(runs.length === RUNS_PER_PAGE); // If we got a full page, there might be more
+        setHasMore(runs.length === RUNS_PER_PAGE);
         setSkip(RUNS_PER_PAGE);
         setLoading(false);
       }).catch((error) => {
@@ -88,7 +89,6 @@ export default function Home() {
         if (newRuns.length > 0) {
           setDisplayedRuns([...displayedRuns, ...newRuns]);
           setSkip(skip + newRuns.length);
-          // If we got fewer runs than requested, we've reached the end
           setHasMore(newRuns.length === RUNS_PER_PAGE);
         } else {
           setHasMore(false);
@@ -149,9 +149,9 @@ export default function Home() {
         
         // Handle different types of profile picture data
         if (typeof profilePictureFile === 'string') {
-          return profilePictureFile; // Already a URL string
+          return profilePictureFile;
         } else if (typeof profilePictureFile.url === 'function') {
-          return profilePictureFile.url(); // Parse File object
+          return profilePictureFile.url();
         }
       }
       return null;
@@ -161,178 +161,92 @@ export default function Home() {
   };
 
   return (
-    <section style={{ padding: "2rem" }}>
+    <section className="p-8">
       <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
       `}</style>
-      <h1>🏃 Welcome to our Running App</h1>
+      
+      <h1 className="text-3xl font-bold mb-4">🏃 Welcome to our Running App</h1>
       {currentUser ? (
-        <p>Run activities from people you follow</p>
+        <p className="text-lg mb-4">Run activities from people you follow</p>
       ) : (
-        <p>Please log in to see run activities from people you follow!</p>
+        <p className="text-lg mb-4">Please log in to see run activities from people you follow!</p>
       )}
 
-{loading ? (
-  <div
-    style={{
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
-      marginTop: "2rem",
-      gap: "0.5rem",
-      color: "#666",
-    }}
-  >
-    <div
-      style={{
-        width: "40px",
-        height: "40px",
-        border: "4px solid #ddd",
-        borderTop: "4px solid #007bff",
-        borderRadius: "50%",
-        animation: "spin 1s linear infinite",
-      }}
-    ></div>
-    <p>Loading runs…</p>
-  </div>
-) : !currentUser ? (
-null) : (
-  
-  <InfiniteScroll
-    dataLength={displayedRuns.length}
-    next={loadMoreRuns}
-    hasMore={hasMore}
-    loader={
-      <div style={{
-        position: "sticky",
-        bottom: "0",
-        width: "100%",
-        background: "rgba(255,255,255,0.9)",
-        padding: "1rem",
-        textAlign: "center",
-        color: "#666",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "0.5rem",
-        backdropFilter: "blur(6px)"
-      }}>
-        <div style={{
-          width: "32px",
-          height: "32px",
-          border: "4px solid #ddd",
-          borderTop: "4px solid #007bff",
-          borderRadius: "50%",
-          animation: "spin 1s linear infinite"
-        }}></div>
-        <p style={{ margin: 0 }}>Loading more runs…</p>
-      </div>
-    }
-    endMessage={
-      <div style={{ textAlign: "center", padding: "2rem", color: "#666" }}>
-        <p><b>You've seen all {displayedRuns.length} runs!</b></p>
-      </div>
-    }
-  >
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        marginTop: "2rem",
-        gap: "1rem",
-      }}
-    >
-      {displayedRuns.length > 0 ? (
-        displayedRuns.map((run) => {
-          const profileName = getRunProfileName(run);
-          const profileUsername = getRunProfileUsername(run);
-          const profileId = getRunProfileId(run);
-          const profilePictureUrl = getRunProfilePictureUrl(run);
-
-          return (
-            <div key={run.id} style={{ position: "relative", width: "100%", maxWidth: "600px" }}>
-              {profileId && (
-                <div
-                  onClick={() => navigate(`/profile/${profileId}`)}
-                  style={{
-                    position: "absolute",
-                    top: "0.5rem",
-                    left: "0.5rem",
-                    backgroundColor: "rgba(255, 255, 255, 0.95)",
-                    padding: "0.5rem",
-                    borderRadius: "8px",
-                    fontSize: "0.85rem",
-                    fontWeight: "bold",
-                    zIndex: 1,
-                    cursor: "pointer",
-                    transition: "all 0.2s",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "0.5rem",
-                    boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "rgba(0, 123, 255, 0.9)";
-                    e.currentTarget.style.color = "white";
-                    e.currentTarget.style.transform = "scale(1.05)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
-                    e.currentTarget.style.color = "inherit";
-                    e.currentTarget.style.transform = "scale(1)";
-                  }}
-                >
-                  {profilePictureUrl && (
-                    <img
-                      src={profilePictureUrl}
-                      alt={`${profileName}'s profile`}
-                      style={{
-                        width: "32px",
-                        height: "32px",
-                        borderRadius: "50%",
-                        objectFit: "cover",
-                        border: "2px solid #fff",
-                      }}
-                    />
-                  )}
-                  <div>
-                    <div style={{ fontWeight: "bold" }}>{profileName}</div>
-                    {profileUsername && (
-                      <div style={{ fontSize: "0.75rem", opacity: 0.8 }}>@{profileUsername}</div>
-                    )}
-                  </div>
-                </div>
-              )}
-              <RunCard run={run} width="100%" />
+      {loading ? (
+        <div className="flex flex-col items-center justify-center mt-8 gap-2 text-gray-500">
+          <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+          <p>Loading runs…</p>
+        </div>
+      ) : !currentUser ? (
+        null
+      ) : (
+        <InfiniteScroll
+          dataLength={displayedRuns.length}
+          next={loadMoreRuns}
+          hasMore={hasMore}
+          loader={
+            <div className="sticky bottom-0 w-full bg-white/90 backdrop-blur-md p-4 text-center text-gray-500 flex flex-col items-center gap-2">
+              <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+              <p className="m-0">Loading more runs…</p>
             </div>
-          );
-        })
-      ) : (
-        <p>Follow people to see their runs! </p>
-      )}
-    </div>
-  </InfiniteScroll>
-)}
+          }
+          endMessage={
+            <div className="text-center p-8 text-gray-500">
+              <p><b>You've seen all {displayedRuns.length} runs!</b></p>
+            </div>
+          }
+        >
+          <div className="flex flex-col items-center mt-8 gap-4">
+            {displayedRuns.length > 0 ? (
+              displayedRuns.map((run) => {
+                const profileName = getRunProfileName(run);
+                const profileUsername = getRunProfileUsername(run);
+                const profileId = getRunProfileId(run);
+                const profilePictureUrl = getRunProfilePictureUrl(run);
 
-      <div style={{ textAlign: "center", marginTop: "2rem" }}>
+                return (
+                  <div key={run.id} className="relative w-full max-w-2xl">
+                    {profileId && (
+                      <div
+                        onClick={() => navigate(`/profile/${profileId}`)}
+                        className="absolute top-2 left-2 bg-white/95 p-2 rounded-lg text-sm font-bold z-10 cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm hover:bg-blue-500 hover:text-white hover:scale-105"
+                      >
+                        {profilePictureUrl && (
+                          <img
+                            src={profilePictureUrl}
+                            alt={`${profileName}'s profile`}
+                            className="w-8 h-8 rounded-full object-cover border-2 border-white"
+                          />
+                        )}
+                        <div>
+                          <div className="font-bold">{profileName}</div>
+                          {profileUsername && (
+                            <div className="text-xs opacity-80">@{profileUsername}</div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                    <RunCard run={run} width="100%" />
+                  </div>
+                );
+              })
+            ) : (
+              <p>Follow people to see their runs!</p>
+            )}
+          </div>
+        </InfiniteScroll>
+      )}
+
+      <div className="text-center mt-8">
         {currentUser ? (
           <>
-            <p>Welcome back, {currentUser.get("firstName")}!</p>
+            <p className="mb-4">Welcome back, {currentUser.get("firstName")}!</p>
             <button
-              style={{
-                margin: "10px",
-                padding: "10px 20px",
-                cursor: "pointer",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-              }}
+              className="m-2.5 px-5 py-2.5 cursor-pointer bg-red-600 text-white border-none rounded hover:bg-red-700 transition-colors"
               onClick={handleLogout}
             >
               Logout
@@ -340,31 +254,15 @@ null) : (
           </>
         ) : (
           <>
-            <p>Please log in or register to continue.</p>
+            <p className="mb-4">Please log in or register to continue.</p>
             <button
-              style={{
-                margin: "10px",
-                padding: "10px 20px",
-                cursor: "pointer",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-              }}
+              className="m-2.5 px-5 py-2.5 cursor-pointer bg-blue-500 text-white border-none rounded hover:bg-blue-600 transition-colors"
               onClick={() => navigate("/login")}
             >
               Login
             </button>
             <button
-              style={{
-                margin: "10px",
-                padding: "10px 20px",
-                cursor: "pointer",
-                backgroundColor: "#28a745",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-              }}
+              className="m-2.5 px-5 py-2.5 cursor-pointer bg-green-600 text-white border-none rounded hover:bg-green-700 transition-colors"
               onClick={() => navigate("/register")}
             >
               Register

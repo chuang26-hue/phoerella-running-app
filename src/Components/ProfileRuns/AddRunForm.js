@@ -1,7 +1,7 @@
 // src/Components/ProfileRuns/AddRunForm.js
 // goal is to create a form to get users input, to add a run to their profile
 import React, { useState, useEffect, useRef } from "react";
-import { createRun } from "../../Common/Services/RunService"; // adjust path if needed
+import { createRun } from "../../Common/Services/RunService";
 import { getAllProfiles } from "../../Common/Services/ProfileService";
 
 export default function AddRunForm({ profileId, onAdded }) {
@@ -44,17 +44,15 @@ export default function AddRunForm({ profileId, onAdded }) {
   }, []);
 
   // Get current user's profile ID to exclude from tagging
-  const currentUserProfileId = profileId; // The profileId prop is the current user's profile
+  const currentUserProfileId = profileId;
 
-  // Filter profiles for autocomplete - exactly like Home.js pattern
+  // Filter profiles for autocomplete
   const filteredProfiles = allProfiles.filter((profile) => {
-    if (!searchTerm) return false; // Don't show suggestions if empty
+    if (!searchTerm) return false;
 
-    // Exclude already selected runners
     const isSelected = selectedRunners.some((selected) => selected.id === profile.id);
     if (isSelected) return false;
 
-    // Exclude current user's profile
     if (profile.id === currentUserProfileId) return false;
 
     const searchLower = searchTerm.toLowerCase();
@@ -62,7 +60,7 @@ export default function AddRunForm({ profileId, onAdded }) {
     const username = profile.get("username")?.toLowerCase() || "";
 
     return name.includes(searchLower) || username.includes(searchLower);
-  }).slice(0, 10); // Limit to 10 suggestions
+  }).slice(0, 10);
 
   const handleSelectRunner = (profile) => {
     if (selectedRunners.length >= 10) {
@@ -70,7 +68,6 @@ export default function AddRunForm({ profileId, onAdded }) {
       return;
     }
 
-    // Check if already selected
     if (selectedRunners.some((selected) => selected.id === profile.id)) {
       return;
     }
@@ -119,7 +116,6 @@ export default function AddRunForm({ profileId, onAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate that at least hours or minutes is provided
     const hrs = parseInt(hours) || 0;
     const mins = parseInt(minutes) || 0;
     if (hrs === 0 && mins === 0) {
@@ -129,35 +125,28 @@ export default function AddRunForm({ profileId, onAdded }) {
 
     setLoading(true);
     try {
-      // Extract runner IDs from selected runners
       const taggedRunnerIds = selectedRunners.map((runner) => runner.id);
-
-      // Calculate total time in minutes
       const totalTimeMinutes = (hrs * 60) + mins;
-
-      // Calculate pace in minutes:seconds format
       const dist = parseFloat(distance);
+      
       let calculatedPaceValue = "";
       if (dist > 0) {
         const paceDecimal = totalTimeMinutes / dist;
         calculatedPaceValue = formatPace(paceDecimal);
       }
 
-      // using RunService.createRun signature:
-      // createRun(distance, time, pace, location, profileId, taggedRunners)
       await createRun(
         dist, 
-        totalTimeMinutes, // Pass as number, not string
+        totalTimeMinutes,
         calculatedPaceValue,
         location,
         profileId,
         taggedRunnerIds
       );
 
-      // call parent to refresh runs
       if (onAdded) await onAdded();
 
-      // clear form
+      // Clear form
       setDistance("");
       setHours("");
       setMinutes("");
@@ -174,8 +163,8 @@ export default function AddRunForm({ profileId, onAdded }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: 420, marginBottom: 20 }}>
-      <h3>Add a Run to Your Profile</h3>
+    <form onSubmit={handleSubmit} className="max-w-md mb-5">
+      <h3 className="text-xl font-bold mb-4">Add a Run to Your Profile</h3>
 
       <input
         name="distance"
@@ -185,12 +174,12 @@ export default function AddRunForm({ profileId, onAdded }) {
         value={distance}
         onChange={(e) => setDistance(e.target.value)}
         required
-        style={{ display: "block", width: "100%", marginBottom: 8 }}
+        className="block w-full mb-2 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       {/* Time Input: Hours and Minutes */}
-      <div style={{ display: "flex", gap: "8px", marginBottom: 8 }}>
-        <div style={{ flex: 1 }}>
+      <div className="flex gap-2 mb-2">
+        <div className="flex-1">
           <input
             name="hours"
             type="number"
@@ -203,10 +192,10 @@ export default function AddRunForm({ profileId, onAdded }) {
                 setHours(val);
               }
             }}
-            style={{ display: "block", width: "100%", padding: "8px" }}
+            className="block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-        <div style={{ flex: 1 }}>
+        <div className="flex-1">
           <input
             name="minutes"
             type="number"
@@ -220,32 +209,24 @@ export default function AddRunForm({ profileId, onAdded }) {
                 setMinutes(val);
               }
             }}
-            style={{ display: "block", width: "100%", padding: "8px" }}
+            className="block w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
+      
       {(hours || minutes) && (
-        <div style={{ fontSize: "12px", color: "#666", marginBottom: 8, fontStyle: "italic" }}>
+        <div className="text-xs text-gray-500 mb-2 italic">
           Total time: {hours || "0"}h {minutes || "0"}m
         </div>
       )}
 
       {/* Calculated Pace Display */}
       {calculatedPace && (
-        <div style={{ marginBottom: 8 }}>
-          <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: 4 }}>
+        <div className="mb-2">
+          <div className="text-sm font-bold mb-1">
             Calculated Pace:
           </div>
-          <div
-            style={{
-              padding: "8px",
-              backgroundColor: "#f5f5f5",
-              borderRadius: "4px",
-              fontSize: "16px",
-              color: "#007bff",
-              fontWeight: "bold",
-            }}
-          >
+          <div className="p-2 bg-gray-100 rounded text-base text-blue-500 font-bold">
             {calculatedPace.formatted} min/km
           </div>
         </div>
@@ -257,12 +238,12 @@ export default function AddRunForm({ profileId, onAdded }) {
         placeholder="Location"
         value={location}
         onChange={(e) => setLocation(e.target.value)}
-        style={{ display: "block", width: "100%", marginBottom: 12 }}
+        className="block w-full mb-3 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
 
       {/* Tag Runners Section */}
-      <div style={{ marginBottom: 12, position: "relative" }}>
-        <label style={{ display: "block", marginBottom: 4, fontSize: "14px", fontWeight: "bold" }}>
+      <div className="mb-3 relative">
+        <label className="block mb-1 text-sm font-bold">
           Tag Runners {selectedRunners.length > 0 && `(${selectedRunners.length}/10)`}
         </label>
         <input
@@ -272,49 +253,23 @@ export default function AddRunForm({ profileId, onAdded }) {
           value={searchTerm}
           onChange={(e) => handleSearchChange(e.target.value)}
           onFocus={() => searchTerm && setShowDropdown(true)}
-          style={{
-            display: "block",
-            width: "100%",
-            padding: "8px",
-            border: "1px solid #ddd",
-            borderRadius: "4px",
-            marginBottom: 8,
-          }}
+          className="block w-full px-3 py-2 border border-gray-300 rounded mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
 
         {/* Autocomplete Dropdown */}
         {showDropdown && filteredProfiles.length > 0 && (
           <div
             ref={dropdownRef}
-            style={{
-              position: "absolute",
-              top: "100%",
-              left: 0,
-              right: 0,
-              backgroundColor: "white",
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-              maxHeight: "200px",
-              overflowY: "auto",
-              zIndex: 1000,
-              boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-            }}
+            className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded max-h-48 overflow-y-auto z-50 shadow-lg"
           >
             {filteredProfiles.map((profile) => (
               <div
                 key={profile.id}
                 onClick={() => handleSelectRunner(profile)}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "#f5f5f5")}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "white")}
-                style={{
-                  padding: "10px",
-                  cursor: "pointer",
-                  borderBottom: "1px solid #eee",
-                  transition: "background-color 0.2s",
-                }}
+                className="p-2.5 cursor-pointer border-b border-gray-200 transition-colors hover:bg-gray-100"
               >
-                <div style={{ fontWeight: "bold" }}>{profile.get("name")}</div>
-                <div style={{ fontSize: "12px", color: "#666" }}>
+                <div className="font-bold">{profile.get("name")}</div>
+                <div className="text-xs text-gray-500">
                   @{profile.get("username")}
                 </div>
               </div>
@@ -324,45 +279,17 @@ export default function AddRunForm({ profileId, onAdded }) {
 
         {/* Selected Runners Chips */}
         {selectedRunners.length > 0 && (
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: "8px",
-              marginTop: "8px",
-            }}
-          >
+          <div className="flex flex-wrap gap-2 mt-2">
             {selectedRunners.map((runner) => (
               <div
                 key={runner.id}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "6px",
-                  padding: "6px 12px",
-                  backgroundColor: "#007bff",
-                  color: "white",
-                  borderRadius: "20px",
-                  fontSize: "14px",
-                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-500 text-white rounded-full text-sm"
               >
                 <span>{runner.get("name")}</span>
                 <button
                   type="button"
                   onClick={() => handleRemoveRunner(runner.id)}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    color: "white",
-                    cursor: "pointer",
-                    fontSize: "16px",
-                    fontWeight: "bold",
-                    padding: 0,
-                    marginLeft: "4px",
-                    lineHeight: 1,
-                  }}
-                  onMouseEnter={(e) => (e.target.style.opacity = "0.7")}
-                  onMouseLeave={(e) => (e.target.style.opacity = "1")}
+                  className="bg-transparent border-none text-white cursor-pointer text-base font-bold p-0 ml-1 leading-none hover:opacity-70 transition-opacity"
                 >
                   ×
                 </button>
@@ -372,13 +299,17 @@ export default function AddRunForm({ profileId, onAdded }) {
         )}
 
         {selectedRunners.length >= 10 && (
-          <div style={{ fontSize: "12px", color: "#dc3545", marginTop: 4 }}>
+          <div className="text-xs text-red-600 mt-1">
             Maximum 10 runners reached
           </div>
         )}
       </div>
 
-      <button type="submit" disabled={loading}>
+      <button 
+        type="submit" 
+        disabled={loading}
+        className="w-full bg-blue-500 text-white py-2.5 px-4 rounded font-medium hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+      >
         {loading ? "Adding…" : "Add Run"}
       </button>
     </form>

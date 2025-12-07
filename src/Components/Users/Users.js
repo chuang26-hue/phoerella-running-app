@@ -23,28 +23,21 @@ export default function Users({ profiles }) {
   });
 
   return (
-    <section style={{ padding: "2rem" }}>
-      <h1>👥 All Users</h1>
-      <p>Select a runner to view their stats!</p>
+    <section className="p-8">
+      <h1 className="text-3xl font-bold mb-2">👥 All Users</h1>
+      <p className="text-lg mb-6">Select a runner to view their stats!</p>
 
       <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          marginTop: "2rem",
-        }}
-      >
+      
+      <div className="flex flex-wrap justify-center mt-8 gap-4">
         {profiles.length > 0 ? (
           filteredProfiles.map((profile) => (
             <ProfileCard key={profile.id} profile={profile} />
           ))
         ) : (
-          <p>Loading profiles...</p>
+          <p className="text-gray-500">Loading profiles...</p>
         )}
       </div>
     </section>
   );
 }
-
