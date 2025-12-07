@@ -56,12 +56,12 @@ const Footer = () => {
 
   return (
     <footer className="fixed top-4 right-4 z-50">
-      <nav>
-        <ul className="flex gap-4 items-center">
+      <nav className="bg-white rounded-full shadow-sm border border-gray-200 px-4 py-2">
+        <ul className="flex gap-3 items-center">
           <li>
             <Link 
               to="/" 
-              className="text-blue-500 hover:text-blue-700 hover:underline transition-colors"
+              className="text-sm text-gray-700 hover:text-gray-900 transition-colors font-medium"
             >
               Home
             </Link>
@@ -70,7 +70,7 @@ const Footer = () => {
           <li>
             <Link 
               to="/users" 
-              className="text-blue-500 hover:text-blue-700 hover:underline transition-colors"
+              className="text-sm text-gray-700 hover:text-gray-900 transition-colors font-medium"
             >
               Users
             </Link>
@@ -79,7 +79,7 @@ const Footer = () => {
           <li>
             <Link 
               to="/about" 
-              className="text-blue-500 hover:text-blue-700 hover:underline transition-colors"
+              className="text-sm text-gray-700 hover:text-gray-900 transition-colors font-medium"
             >
               About
             </Link>
@@ -89,7 +89,7 @@ const Footer = () => {
             <li>
               <Link 
                 to={`/profile/${profileId}`} 
-                className="text-blue-500 hover:text-blue-700 hover:underline transition-colors"
+                className="text-sm text-gray-700 hover:text-gray-900 transition-colors font-medium"
               >
                 My Profile
               </Link>

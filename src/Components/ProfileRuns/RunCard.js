@@ -86,7 +86,7 @@ export default function RunCard({ run, width = "200px" }) {
 
   return (
     <div
-      className="border border-gray-300 rounded-xl p-4 m-4 text-center transition-transform duration-200"
+      className="bg-white border border-gray-300 rounded-xl p-4 m-4 text-center transition-transform duration-200 shadow-sm"
       style={{ width }}
     >
       <h3 className="mb-2 text-lg font-bold">🏃‍♂️ Run</h3>
@@ -94,7 +94,7 @@ export default function RunCard({ run, width = "200px" }) {
         <strong>Distance:</strong> {distance} km
       </p>
       <p className="mb-2">
-        <strong>Time:</strong> {time} minutes
+        <strong>Time:</strong> {time} mins
       </p>
       <p className="mb-2">
         <strong>Pace:</strong> {pace} min/km
