@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ## [0.4.0] - 2025-12-07
 
 ### Added
-# Social Features
+#### Social Features (Student B)
 - Implemented follow/unfollow functionality allowing users to connect with other runners
 - Added search bar with filtering logic to discover profiles 
 - Introduced runner tagging system to tag other users in runs
