@@ -13,9 +13,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Added search bar with filtering logic to discover profiles 
 - Introduced runner tagging system to tag other users in runs
 
+#### Functionality Features (Student A)
+- Implemented infinite scroll on Home page to see run activities from profiles user follows
+- Added reset/forget password 
+- Syled Home and rest of website with tailwindCSS
+
 ### Fixed
 - Implemented Parse Collections caching pattern for profiles and runs, significantly reducing page load times and Back4App queries
 - Fixed follower count not updating after follow/unfollow actions by implementing useEffect-based refresh pattern
+- Reorganized website structure with updated footer
 
 ## [0.3.1] - 2025-11-07
 ### Added
