@@ -1,8 +1,8 @@
 // src/Components/Users/Users.js
 // Display all profiles/users on the users page
 import React, { useState } from "react";
-import ProfileCard from "../Home/ProfileCard";
-import SearchBar from "../Home/SearchBar";
+import ProfileCard from "./ProfileCard";
+import SearchBar from "./SearchBar";
 
 export default function Users({ profiles }) {
   const [searchTerm, setSearchTerm] = useState("");

@@ -159,7 +159,7 @@ export default function Home() {
           }
         `}</style>
         
-        <h1 className="text-3xl font-bold mb-4">🏃 Welcome to our Running App</h1>
+        <h1 className="text-3xl font-bold mb-4">🏃 Welcome to Phoerella Running App</h1>
         {currentUser ? (
           <p className="text-lg mb-4">Run activities from people you follow</p>
         ) : (
