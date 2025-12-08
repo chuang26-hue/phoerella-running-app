@@ -132,7 +132,7 @@ export default function ProfileRuns() {
 
                   {/* Follow Button - positioned lower */}
                   <div className="mt-6">
-                    <FollowButton profileId={userId} />
+                  <FollowButton profileId={userId} onFollowChange={refreshFollowerCounts} />
                   </div>
                 </div>
               </div>
