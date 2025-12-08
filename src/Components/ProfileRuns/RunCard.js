@@ -49,20 +49,7 @@ export default function RunCard({ run, width = "200px" }) {
         <span
           key={runner.id}
           onClick={(e) => handleRunnerClick(runner.id, e)}
-          style={{
-            color: "#007bff",
-            cursor: "pointer",
-            textDecoration: "none",
-            transition: "all 0.2s",
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.textDecoration = "underline";
-            e.currentTarget.style.color = "#0056b3";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.textDecoration = "none";
-            e.currentTarget.style.color = "#007bff";
-          }}
+          className="text-blue-500 cursor-pointer transition-all duration-200 hover:text-blue-700 hover:underline"
         >
           {runner.name}
         </span>
@@ -99,38 +86,30 @@ export default function RunCard({ run, width = "200px" }) {
 
   return (
     <div
-      style={{
-        border: "1px solid #ddd",
-        borderRadius: "12px",
-        padding: "1rem",
-        margin: "1rem",
-        textAlign: "center",
-        width: width,
-        cursor: "default",
-        transition: "transform 0.2s",
-      }}
+      className="bg-white border border-gray-300 rounded-xl p-4 m-4 text-center transition-transform duration-200 shadow-sm"
+      style={{ width }}
     >
-      <h3 style={{ marginBottom: "0.5rem" }}>🏃‍♂️ Run</h3>
-      <p>
+      <h3 className="mb-2 text-lg font-bold">🏃‍♂️ Run</h3>
+      <p className="mb-2">
         <strong>Distance:</strong> {distance} km
       </p>
-      <p>
-        <strong>Time:</strong> {time} minutes
+      <p className="mb-2">
+        <strong>Time:</strong> {time} mins
       </p>
-      <p>
+      <p className="mb-2">
         <strong>Pace:</strong> {pace} min/km
       </p>
       {location && (
-        <p>
+        <p className="mb-2">
           <strong>Location:</strong> {location}
         </p>
       )}
       {taggedRunners.length > 0 && (
-        <p style={{ fontSize: "0.9rem", marginTop: "0.5rem", fontStyle: "italic" }}>
+        <p className="text-sm mt-2 italic">
           {formatTaggedRunners()}
         </p>
       )}
-      <p style={{ fontSize: "0.8rem", color: "#777" }}>
+      <p className="text-xs text-gray-500 mt-2">
         {date && `Date: ${date}`}
       </p>
     </div>

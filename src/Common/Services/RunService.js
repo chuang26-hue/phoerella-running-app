@@ -99,8 +99,8 @@ export const removeRun = (id) => {
   });
 };
 
-// Get all runs from multiple profiles (for feed)
-export const getRunsByProfileIds = (profileIds) => {
+// Get all runs from multiple profiles (for feed) - supports pagination
+export const getRunsByProfileIds = (profileIds, skip = 0, limit = 10) => {
   if (!profileIds || profileIds.length === 0) {
     return Promise.resolve([]);
   }
@@ -120,11 +120,15 @@ export const getRunsByProfileIds = (profileIds) => {
   query.include("taggedRunners"); // Include tagged runners in query
   query.include("ProfilePointer"); // Include profile info
   query.descending("createdAt"); // Most recent first
+  
+  // Add pagination
+  query.skip(skip);
+  query.limit(limit);
 
   return query
     .find()
     .then((results) => {
-      console.log("runs from followed profiles: ", results);
+      console.log(`Fetched ${results.length} runs (skip: ${skip}, limit: ${limit})`);
       return results;
     })
     .catch((error) => {
