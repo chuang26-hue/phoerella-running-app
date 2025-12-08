@@ -5,6 +5,7 @@ import { getAllProfiles } from "../../Common/Services/ProfileService";
 
 import Home from "../Home/Home.js";
 import Users from "../Users/Users.js";
+import Users from "../Users/Users.js";
 import About from "../About/About.js";
 import Footer from "../Shared/Footer.js";
 import ProfileRuns from "../ProfileRuns/ProfileRuns";

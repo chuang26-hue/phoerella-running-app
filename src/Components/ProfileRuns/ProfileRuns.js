@@ -40,6 +40,25 @@ export default function ProfileRuns() {
     }
   };
   
+  // Function to refresh follower and following counts
+  const refreshFollowerCounts = async () => {
+    if (!userId) return;
+    
+    try {
+      // Force refresh to get latest counts
+      const [followerCountResult, followingCountResult] = await Promise.all([
+        getFollowerCount(userId, true),
+        getFollowingCount(userId, true)
+      ]);
+      
+      setFollowerCount(followerCountResult);
+      setFollowingCount(followingCountResult);
+    } catch (error) {
+      console.error("Error refreshing follower counts:", error);
+      // Don't update state on error to keep current values
+    }
+  };
+  
   useEffect(() => {
     if (userId) {
       getProfileById(userId)
@@ -137,6 +156,31 @@ export default function ProfileRuns() {
                 </div>
               </div>
             </div>
+            {/* Follow button */}
+            <FollowButton profileId={userId} onFollowChange={refreshFollowerCounts} />
+          </div>
+
+          {isOwnProfile && <AddRunForm profileId={userId} onAdded={fetchRuns} />}
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              marginTop: "1rem",
+            }}
+          >
+            {userRuns.length > 0 ? (
+              userRuns.map((run) => <RunCard key={run.id} run={run} />)
+            ) : (
+              <p>No runs yet.</p>
+            )}
+          </div>
+        </>
+      ) : (
+        <p>Loading profile...</p>
+      )}
+    </section>
 
             {/* Add Run Form */}
             {isOwnProfile && (

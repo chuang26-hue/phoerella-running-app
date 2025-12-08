@@ -9,7 +9,10 @@ import RunCard from "../ProfileRuns/RunCard";
 import { logoutUser } from "../Auth/AuthService";
 import { getFollowingProfiles } from "../../Common/Services/FollowService";
 import { getRunsByProfileIds } from "../../Common/Services/RunService";
+import { getFollowingProfiles } from "../../Common/Services/FollowService";
+import { getRunsByProfileIds } from "../../Common/Services/RunService";
 
+export default function Home() {
 export default function Home() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
