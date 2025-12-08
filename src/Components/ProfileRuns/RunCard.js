@@ -3,7 +3,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function RunCard({ run, width = "200px" }) {
+
 export default function RunCard({ run, width = "200px" }) {
   const navigate = useNavigate();
   const distance = run.get("distance");

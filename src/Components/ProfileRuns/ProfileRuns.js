@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { getRunsByProfileId } from "../../Common/Services/RunService";
 import { getProfileById } from "../../Common/Services/ProfileService";
@@ -15,91 +15,56 @@ export default function ProfileRuns() {
   const [followerCount, setFollowerCount] = useState(0);
   const [followingCount, setFollowingCount] = useState(0);
 
-  const fetchRuns = async () => {
+  const fetchRuns = useCallback(async () => {
     if (!userId) return;
-    const runs = await getRunsByProfileId(userId);
-    setUserRuns(runs || []);
+    try {
+      const runs = await getRunsByProfileId(userId);
+      setUserRuns(runs || []);
+    } catch (error) {
+      console.error("Error fetching runs:", error);
+      setUserRuns([]);
+    }
+  }, [userId]);
+
+  const refreshFollowerCounts = async () => {
+    if (!userId) return;
+    try {
+      const [followerCountResult, followingCountResult] = await Promise.all([
+        getFollowerCount(userId, true),
+        getFollowingCount(userId, true)
+      ]);
+      setFollowerCount(followerCountResult);
+      setFollowingCount(followingCountResult);
+    } catch (error) {
+      console.error("Error refreshing follower counts:", error);
+    }
   };
 
-  // Function to refresh follower and following counts
-  const refreshFollowerCounts = async () => {
-    if (!userId) return;
-    
-    try {
-      // Force refresh to get latest counts
-      const [followerCountResult, followingCountResult] = await Promise.all([
-        getFollowerCount(userId, true),
-        getFollowingCount(userId, true)
-      ]);
-      
-      setFollowerCount(followerCountResult);
-      setFollowingCount(followingCountResult);
-    } catch (error) {
-      console.error("Error refreshing follower counts:", error);
-      // Don't update state on error to keep current values
-    }
-  };
-  
-  // Function to refresh follower and following counts
-  const refreshFollowerCounts = async () => {
-    if (!userId) return;
-    
-    try {
-      // Force refresh to get latest counts
-      const [followerCountResult, followingCountResult] = await Promise.all([
-        getFollowerCount(userId, true),
-        getFollowingCount(userId, true)
-      ]);
-      
-      setFollowerCount(followerCountResult);
-      setFollowingCount(followingCountResult);
-    } catch (error) {
-      console.error("Error refreshing follower counts:", error);
-      // Don't update state on error to keep current values
-    }
-  };
-  
   useEffect(() => {
     if (userId) {
       getProfileById(userId)
         .then(setProfile)
-        .catch((error) => {
-          console.error("Error fetching profile:", error);
-          setProfile(null);
-        });
-      getRunsByProfileId(userId)
-        .then(setUserRuns)
-        .catch((error) => {
-          console.error("Error fetching runs:", error);
-          setUserRuns([]);
-        });
+        .catch(() => setProfile(null));
+  
+      fetchRuns();
+  
       getFollowerCount(userId)
         .then(setFollowerCount)
-        .catch((error) => {
-          console.error("Error fetching follower count:", error);
-          setFollowerCount(0);
-        });
+        .catch(() => setFollowerCount(0));
+  
       getFollowingCount(userId)
         .then(setFollowingCount)
-        .catch((error) => {
-          console.error("Error fetching following count:", error);
-          setFollowingCount(0);
-        });
+        .catch(() => setFollowingCount(0));
     }
-  }, [userId]);
+  }, [userId, fetchRuns]);
 
   const currentUser = Parse.User.current();
   const isOwnProfile = currentUser && profile && typeof profile.get === 'function' && profile.get("user")?.id === currentUser.id;
 
-  // Safely get profile picture URL
   const getProfilePictureUrl = (profilePictureFile) => {
     if (!profilePictureFile) return null;
-    if (typeof profilePictureFile === 'string') {
-      return profilePictureFile;
-    }
-    if (typeof profilePictureFile.url === 'function') {
-      return profilePictureFile.url();
-    }
+    if (typeof profilePictureFile === 'string') return profilePictureFile;
+    if (typeof profilePictureFile.url === 'function') return profilePictureFile.url();
     return null;
   };
 
@@ -112,10 +77,9 @@ export default function ProfileRuns() {
       <div className="max-w-4xl mx-auto px-6 py-8">
         {profile && typeof profile.get === 'function' ? (
           <>
-            {/* Profile Header Card */}
+            {/* Profile Header */}
             <div className="bg-white rounded-2xl shadow-sm p-8 mb-6">
               <div className="flex items-start gap-6">
-                {/* Profile Picture */}
                 {profilePictureUrl ? (
                   <img
                     src={profilePictureUrl}
@@ -128,16 +92,10 @@ export default function ProfileRuns() {
                   </div>
                 )}
 
-                {/* Profile Info */}
                 <div className="flex-1">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                    {profile.get("name")}
-                  </h1>
-                  <p className="text-lg text-gray-500 mb-4">
-                    @{profile.get("username")}
-                  </p>
+                  <h1 className="text-3xl font-bold text-gray-900 mb-1">{profile.get("name")}</h1>
+                  <p className="text-lg text-gray-500 mb-4">@{profile.get("username")}</p>
 
-                  {/* Follower Stats */}
                   <div className="flex gap-6 text-sm mb-4">
                     <div>
                       <span className="font-bold text-gray-900">{followerCount}</span>
@@ -149,38 +107,13 @@ export default function ProfileRuns() {
                     </div>
                   </div>
 
-                  {/* Follow Button - positioned lower */}
-                  <div className="mt-6">
-                  <FollowButton profileId={userId} onFollowChange={refreshFollowerCounts} />
-                  </div>
+                  {/* Follow Button */}
+                  {!isOwnProfile && (
+                    <FollowButton profileId={userId} onFollowChange={refreshFollowerCounts} />
+                  )}
                 </div>
               </div>
             </div>
-            {/* Follow button */}
-            <FollowButton profileId={userId} onFollowChange={refreshFollowerCounts} />
-          </div>
-
-          {isOwnProfile && <AddRunForm profileId={userId} onAdded={fetchRuns} />}
-
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              marginTop: "1rem",
-            }}
-          >
-            {userRuns.length > 0 ? (
-              userRuns.map((run) => <RunCard key={run.id} run={run} />)
-            ) : (
-              <p>No runs yet.</p>
-            )}
-          </div>
-        </>
-      ) : (
-        <p>Loading profile...</p>
-      )}
-    </section>
 
             {/* Add Run Form */}
             {isOwnProfile && (
