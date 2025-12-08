@@ -2,7 +2,7 @@ export default function About() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <section className="max-w-5xl mx-auto px-4 py-12">
-        <h1 className="text-4xl font-bold mb-6">About Us</h1>
+        <h1 className="text-4xl font-bold mb-6">👯‍♀️ About Us</h1>
 
         <p className="text-lg text-gray-700 mb-10 leading-relaxed">
           We are friends (and roommates) who enjoy running and keeping track of 
