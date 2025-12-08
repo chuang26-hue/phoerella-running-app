@@ -1,4 +1,4 @@
-# 🏃‍♀️ Running Tracker
+# 🏃‍♀️ Phoerella Running App
 
 A web application for tracking running goals and comparing progress with friends.  
 
@@ -15,17 +15,16 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 ## 🏁 Overview
 
-**Running Tracker** is a social fitness application that helps runners stay motivated by allowing them to set personal running goals and compare their progress with friends.  
+**Phoerella Running App** is a social fitness application that helps runners stay motivated by allowing them to set personal running goals and compare their progress with friends.  
 Whether you're training for a marathon or just trying to stay active, this app makes it easy to track your runs and celebrate achievements together.
 
 ---
 
 ## ✨ Features
 
-- **Goal Setting:** Set and track personal running goals (distance, time, frequency)  
 - **Run Logging:** Record your runs with details like distance, duration, and date  
+- **Tagged Runs:** Tag friends in your runs to share achievements and stay motivated
 - **Social Comparison:** View and compare your progress with friends  
-- **Progress Visualization:** Track your achievements over time  
 - **Friend Connections:** Connect with other runners to stay motivated  
 
 ---
@@ -35,7 +34,7 @@ Whether you're training for a marathon or just trying to stay active, this app m
 This project is built using modern web development technologies covered in **CSE 40693**:
 
 - **Frontend:** HTML, CSS, JavaScript, React  
-- **Backend:** TBD  
+- **Backend:** Back4App
 
 ---
 
@@ -83,8 +82,10 @@ Your app will be built into the `/build` directory and ready for production.
 ---
 
 ## 🏗️ Future Work
-
-- Add real-time activity sharing with friends  
+- Users can add goals to keep themselves accountable 
+- Store data to find users' best efforts 
+- Add real-time activity sharing with friends
+- Show accumulated mileage and trends   
 - Support for wearable fitness tracker data imports  
 
 ---
