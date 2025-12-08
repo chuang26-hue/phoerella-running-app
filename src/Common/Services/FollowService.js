@@ -86,6 +86,7 @@ export const isFollowing = async (followerProfileId, followingProfileId) => {
 };
 
 // Get follower count for a profile
+
 export const getFollowerCount = async (profileId) => {
   try {
     const Follows = Parse.Object.extend("Follows");
@@ -120,5 +121,28 @@ export const getFollowingCount = async (profileId) => {
   } catch (error) {
     console.error("Error getting following count:", error);
     return 0;
+  }
+};
+
+// Get all profiles that a user follows
+export const getFollowingProfiles = async (followerProfileId) => {
+  try {
+    const Follows = Parse.Object.extend("Follows");
+    const query = new Parse.Query(Follows);
+
+    const Profile = Parse.Object.extend("Profile");
+    const followerPointer = new Profile();
+    followerPointer.id = followerProfileId;
+
+    query.equalTo("follower", followerPointer);
+    query.include("following"); // Include the full profile objects
+    const follows = await query.find();
+    
+    // Extract the profile objects from the follow relationships
+    const profiles = follows.map((follow) => follow.get("following"));
+    return profiles;
+  } catch (error) {
+    console.error("Error getting following profiles:", error);
+    return [];
   }
 };

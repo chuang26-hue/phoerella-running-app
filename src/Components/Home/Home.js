@@ -1,70 +1,223 @@
 // src/Components/Home/Home.js
-// Formatting to display profiles on home page
-// In future: create "Race" and "Challenge" objects and allow users to join races/challenges against other users
+// Display Run activities from people you follow
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Parse from "parse";
-import ProfileCard from "./ProfileCard";
-import SearchBar from "./SearchBar";
+import RunCard from "../ProfileRuns/RunCard";
 import { logoutUser } from "../Auth/AuthService";
+import { getFollowingProfiles } from "../../Common/Services/FollowService";
+import { getRunsByProfileIds } from "../../Common/Services/RunService";
 
-export default function Home({ profiles }) {
+export default function Home() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [currentUserProfile, setCurrentUserProfile] = useState(null);
+  const [runs, setRuns] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Check if user is logged in
+  // Check if user is logged in and fetch runs from followed users
   useEffect(() => {
     const user = Parse.User.current();
     setCurrentUser(user);
+    
+    if (user) {
+      // Get current user's profile
+      const Profile = Parse.Object.extend("Profile");
+      const query = new Parse.Query(Profile);
+      query.equalTo("user", user);
+      
+      query.first().then((profile) => {
+        if (profile) {
+          setCurrentUserProfile(profile);
+          // Get all profiles the user follows
+          return getFollowingProfiles(profile.id);
+        }
+        return [];
+      }).then((followedProfiles) => {
+        if (followedProfiles && followedProfiles.length > 0) {
+          // Get profile IDs
+          const profileIds = followedProfiles.map((profile) => profile.id);
+          // Get all runs from followed profiles
+          return getRunsByProfileIds(profileIds);
+        }
+        return [];
+      }).then((runsData) => {
+        setRuns(runsData || []);
+        setLoading(false);
+      }).catch((error) => {
+        console.error("Error fetching runs:", error);
+        setRuns([]);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const handleLogout = () => {
     logoutUser().then((success) => {
       if (success) {
         setCurrentUser(null);
+        setCurrentUserProfile(null);
+        setRuns([]);
         alert("Logged out successfully!");
       }
     });
   };
 
-  const filteredProfiles = profiles.filter((profile) => {
-    // Guard: ensure profile is a valid Parse object before calling .get()
-    if (!profile || typeof profile.get !== 'function') {
-      return false;
+  // Helper function to get profile name from run
+  const getRunProfileName = (run) => {
+    try {
+      const profilePointer = run.get("ProfilePointer");
+      if (profilePointer && typeof profilePointer.get === 'function') {
+        return profilePointer.get("name") || "Unknown Runner";
+      }
+      return "Unknown Runner";
+    } catch (error) {
+      return "Unknown Runner";
     }
-    
-    if (!searchTerm) return true; // Show all if no search term
+  };
 
-    const searchLower = searchTerm.toLowerCase();
-    const name = profile.get("name").toLowerCase() || "";
-    const username = profile.get("username").toLowerCase() || "";
+  // Helper function to get profile username from run
+  const getRunProfileUsername = (run) => {
+    try {
+      const profilePointer = run.get("ProfilePointer");
+      if (profilePointer && typeof profilePointer.get === 'function') {
+        return profilePointer.get("username") || "";
+      }
+      return "";
+    } catch (error) {
+      return "";
+    }
+  };
 
-    return name.includes(searchLower) || username.includes(searchLower);
-  });
+  // Helper function to get profile ID from run
+  const getRunProfileId = (run) => {
+    try {
+      const profilePointer = run.get("ProfilePointer");
+      if (profilePointer) {
+        return profilePointer.id;
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  };
+
+  // Helper function to get profile picture URL from run
+  const getRunProfilePictureUrl = (run) => {
+    try {
+      const profilePointer = run.get("ProfilePointer");
+      if (profilePointer && typeof profilePointer.get === 'function') {
+        const profilePictureFile = profilePointer.get("profilePicture");
+        if (!profilePictureFile) return null;
+        
+        // Handle different types of profile picture data
+        if (typeof profilePictureFile === 'string') {
+          return profilePictureFile; // Already a URL string
+        } else if (typeof profilePictureFile.url === 'function') {
+          return profilePictureFile.url(); // Parse File object
+        }
+      }
+      return null;
+    } catch (error) {
+      return null;
+    }
+  };
 
   return (
     <section style={{ padding: "2rem" }}>
       <h1>🏃 Welcome to our Running App</h1>
-      <p>Select a runner to view their stats!</p>
+      {currentUser ? (
+        <p>Run activities from people you follow</p>
+      ) : (
+        <p>Please log in to see run activities from people you follow!</p>
+      )}
 
-      <SearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          marginTop: "2rem",
-        }}
-      >
-        {profiles.length > 0 ? (
-          filteredProfiles.map((profile) => (
-            <ProfileCard key={profile.id} profile={profile} />
-          ))
-        ) : (
-          <p>Loading profiles...</p>
-        )}
-      </div>
+      {loading ? (
+        <p>Loading runs...</p>
+      ) : (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            marginTop: "2rem",
+            gap: "1rem",
+          }}
+        >
+          {runs.length > 0 ? (
+            runs.map((run) => {
+              const profileName = getRunProfileName(run);
+              const profileUsername = getRunProfileUsername(run);
+              const profileId = getRunProfileId(run);
+              const profilePictureUrl = getRunProfilePictureUrl(run);
+              
+              return (
+                <div key={run.id} style={{ position: "relative", width: "100%", maxWidth: "600px" }}>
+                  {profileId && (
+                    <div
+                      onClick={() => navigate(`/profile/${profileId}`)}
+                      style={{
+                        position: "absolute",
+                        top: "0.5rem",
+                        left: "0.5rem",
+                        backgroundColor: "rgba(255, 255, 255, 0.95)",
+                        padding: "0.5rem",
+                        borderRadius: "8px",
+                        fontSize: "0.85rem",
+                        fontWeight: "bold",
+                        zIndex: 1,
+                        cursor: "pointer",
+                        transition: "all 0.2s",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(0, 123, 255, 0.9)";
+                        e.currentTarget.style.color = "white";
+                        e.currentTarget.style.transform = "scale(1.05)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
+                        e.currentTarget.style.color = "inherit";
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                    >
+                      {profilePictureUrl && (
+                        <img
+                          src={profilePictureUrl}
+                          alt={`${profileName}'s profile`}
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            border: "2px solid #fff",
+                          }}
+                        />
+                      )}
+                      <div>
+                        <div style={{ fontWeight: "bold" }}>{profileName}</div>
+                        {profileUsername && (
+                          <div style={{ fontSize: "0.75rem", opacity: 0.8 }}>@{profileUsername}</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  <RunCard run={run} width="100%" />
+                </div>
+              );
+            })
+          ) : currentUser ? (
+            <p>No runs from people you follow yet. Start following people to see their activities!</p>
+          ) : (
+            <p>Please log in to see run activities.</p>
+          )}
+        </div>
+      )}
 
       <div style={{ textAlign: "center", marginTop: "2rem" }}>
         {currentUser ? (
