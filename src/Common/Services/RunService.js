@@ -1,4 +1,5 @@
 import Parse from "parse";
+import moment from "moment-timezone";
 
 // CREATE new run
 export const createRun = (distance, time, pace, location, profileId, 
@@ -11,6 +12,10 @@ export const createRun = (distance, time, pace, location, profileId,
   run.set("time", time);
   run.set("pace", pace);
   run.set("location", location);
+  
+  // Set date in Eastern Time
+  const easternDate = moment.tz("America/New_York").toDate();
+  run.set("date", easternDate);
 
   // connect run to profile
   const Profile = Parse.Object.extend("Profile");
@@ -58,7 +63,7 @@ export const getRunsByProfileId = (profileId) => {
   console.log("Fetching runs for profileId:", profileId);
   query.equalTo("ProfilePointer", profilePointer);
   query.include("taggedRunners"); // Include tagged runners in query
-  query.descending("createdAt"); // Most recent first
+  query.descending("date"); // Sort by date instead of createdAt
 
   return query
     .find()
@@ -99,8 +104,8 @@ export const removeRun = (id) => {
   });
 };
 
-// Get all runs from multiple profiles (for feed) - supports pagination
-export const getRunsByProfileIds = (profileIds, skip = 0, limit = 10) => {
+// Get all runs from multiple profiles (for feed)
+export const getRunsByProfileIds = (profileIds) => {
   if (!profileIds || profileIds.length === 0) {
     return Promise.resolve([]);
   }
@@ -119,20 +124,21 @@ export const getRunsByProfileIds = (profileIds, skip = 0, limit = 10) => {
   query.containedIn("ProfilePointer", profilePointers);
   query.include("taggedRunners"); // Include tagged runners in query
   query.include("ProfilePointer"); // Include profile info
-  query.descending("createdAt"); // Most recent first
-  
-  // Add pagination
-  query.skip(skip);
-  query.limit(limit);
+  query.descending("date"); // Sort by date instead of createdAt
 
   return query
     .find()
     .then((results) => {
-      console.log(`Fetched ${results.length} runs (skip: ${skip}, limit: ${limit})`);
+      console.log("runs from followed profiles: ", results);
       return results;
     })
     .catch((error) => {
       console.log("error fetching runs from followed profiles: ", error);
       return [];
     });
+};
+
+// Helper function to format dates for display
+export const formatRunDate = (date) => {
+  return moment(date).tz("America/New_York").format("MMM DD, YYYY");
 };
