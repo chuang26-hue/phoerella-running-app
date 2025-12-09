@@ -1,52 +1,59 @@
 // src/Components/Home/Home.js
-// Display Run activities from people you follow
+// Display Run activities from people you follow with infinite scroll
+import './Home.css';
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Parse from "parse";
+import InfiniteScroll from "react-infinite-scroll-component";
 import RunCard from "../ProfileRuns/RunCard";
 import { logoutUser } from "../Auth/AuthService";
 import { getFollowingProfiles } from "../../Common/Services/FollowService";
 import { getRunsByProfileIds } from "../../Common/Services/RunService";
 
+
 export default function Home() {
   const navigate = useNavigate();
   const [currentUser, setCurrentUser] = useState(null);
-  const [currentUserProfile, setCurrentUserProfile] = useState(null);
-  const [runs, setRuns] = useState([]);
+  const [followedProfileIds, setFollowedProfileIds] = useState([]);
+  const [displayedRuns, setDisplayedRuns] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasMore, setHasMore] = useState(true);
+  const [skip, setSkip] = useState(0);
+  
+  const RUNS_PER_PAGE = 5;
 
-  // Check if user is logged in and fetch runs from followed users
+  // Check if user is logged in and get followed profiles
   useEffect(() => {
     const user = Parse.User.current();
     setCurrentUser(user);
     
     if (user) {
-      // Get current user's profile
       const Profile = Parse.Object.extend("Profile");
       const query = new Parse.Query(Profile);
       query.equalTo("user", user);
       
       query.first().then((profile) => {
         if (profile) {
-          setCurrentUserProfile(profile);
-          // Get all profiles the user follows
           return getFollowingProfiles(profile.id);
         }
         return [];
       }).then((followedProfiles) => {
         if (followedProfiles && followedProfiles.length > 0) {
-          // Get profile IDs
           const profileIds = followedProfiles.map((profile) => profile.id);
-          // Get all runs from followed profiles
-          return getRunsByProfileIds(profileIds);
+          setFollowedProfileIds(profileIds);
+          return getRunsByProfileIds(profileIds, 0, RUNS_PER_PAGE);
         }
+        setFollowedProfileIds([]);
         return [];
       }).then((runsData) => {
-        setRuns(runsData || []);
+        const runs = runsData || [];
+        setDisplayedRuns(runs);
+        setHasMore(runs.length === RUNS_PER_PAGE);
+        setSkip(RUNS_PER_PAGE);
         setLoading(false);
       }).catch((error) => {
         console.error("Error fetching runs:", error);
-        setRuns([]);
+        setDisplayedRuns([]);
         setLoading(false);
       });
     } else {
@@ -58,14 +65,36 @@ export default function Home() {
     logoutUser().then((success) => {
       if (success) {
         setCurrentUser(null);
-        setCurrentUserProfile(null);
-        setRuns([]);
+        setFollowedProfileIds([]);
+        setDisplayedRuns([]);
+        setSkip(0);
         alert("Logged out successfully!");
       }
     });
   };
 
-  // Helper function to get profile name from run
+  const loadMoreRuns = () => {
+    if (followedProfileIds.length === 0) {
+      setHasMore(false);
+      return;
+    }
+
+    getRunsByProfileIds(followedProfileIds, skip, RUNS_PER_PAGE)
+      .then((newRuns) => {
+        if (newRuns.length > 0) {
+          setDisplayedRuns([...displayedRuns, ...newRuns]);
+          setSkip(skip + newRuns.length);
+          setHasMore(newRuns.length === RUNS_PER_PAGE);
+        } else {
+          setHasMore(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error loading more runs:", error);
+        setHasMore(false);
+      });
+  };
+
   const getRunProfileName = (run) => {
     try {
       const profilePointer = run.get("ProfilePointer");
@@ -78,7 +107,6 @@ export default function Home() {
     }
   };
 
-  // Helper function to get profile username from run
   const getRunProfileUsername = (run) => {
     try {
       const profilePointer = run.get("ProfilePointer");
@@ -91,7 +119,6 @@ export default function Home() {
     }
   };
 
-  // Helper function to get profile ID from run
   const getRunProfileId = (run) => {
     try {
       const profilePointer = run.get("ProfilePointer");
@@ -104,7 +131,6 @@ export default function Home() {
     }
   };
 
-  // Helper function to get profile picture URL from run
   const getRunProfilePictureUrl = (run) => {
     try {
       const profilePointer = run.get("ProfilePointer");
@@ -112,11 +138,10 @@ export default function Home() {
         const profilePictureFile = profilePointer.get("profilePicture");
         if (!profilePictureFile) return null;
         
-        // Handle different types of profile picture data
         if (typeof profilePictureFile === 'string') {
-          return profilePictureFile; // Already a URL string
+          return profilePictureFile;
         } else if (typeof profilePictureFile.url === 'function') {
-          return profilePictureFile.url(); // Parse File object
+          return profilePictureFile.url();
         }
       }
       return null;
@@ -126,154 +151,117 @@ export default function Home() {
   };
 
   return (
-    <section style={{ padding: "2rem" }}>
-      <h1>🏃 Welcome to our Running App</h1>
-      {currentUser ? (
-        <p>Run activities from people you follow</p>
-      ) : (
-        <p>Please log in to see run activities from people you follow!</p>
-      )}
+    <div className="min-h-screen bg-gray-50">
+      <section className="p-8">
+        <style>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
+        
+        <h1 className="text-3xl font-bold mb-4">🏃 Welcome to Phoerella Running App</h1>
+        {currentUser ? (
+          <p className="text-lg mb-4">Run activities from people you follow</p>
+        ) : (
+          <p className="text-lg mb-4">Please log in to see run activities from people you follow!</p>
+        )}
 
-      {loading ? (
-        <p>Loading runs...</p>
-      ) : (
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            marginTop: "2rem",
-            gap: "1rem",
-          }}
-        >
-          {runs.length > 0 ? (
-            runs.map((run) => {
-              const profileName = getRunProfileName(run);
-              const profileUsername = getRunProfileUsername(run);
-              const profileId = getRunProfileId(run);
-              const profilePictureUrl = getRunProfilePictureUrl(run);
-              
-              return (
-                <div key={run.id} style={{ position: "relative", width: "100%", maxWidth: "600px" }}>
-                  {profileId && (
-                    <div
-                      onClick={() => navigate(`/profile/${profileId}`)}
-                      style={{
-                        position: "absolute",
-                        top: "0.5rem",
-                        left: "0.5rem",
-                        backgroundColor: "rgba(255, 255, 255, 0.95)",
-                        padding: "0.5rem",
-                        borderRadius: "8px",
-                        fontSize: "0.85rem",
-                        fontWeight: "bold",
-                        zIndex: 1,
-                        cursor: "pointer",
-                        transition: "all 0.2s",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = "rgba(0, 123, 255, 0.9)";
-                        e.currentTarget.style.color = "white";
-                        e.currentTarget.style.transform = "scale(1.05)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.95)";
-                        e.currentTarget.style.color = "inherit";
-                        e.currentTarget.style.transform = "scale(1)";
-                      }}
-                    >
-                      {profilePictureUrl && (
-                        <img
-                          src={profilePictureUrl}
-                          alt={`${profileName}'s profile`}
-                          style={{
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            objectFit: "cover",
-                            border: "2px solid #fff",
-                          }}
-                        />
+        {loading ? (
+          <div className="flex flex-col items-center justify-center mt-8 gap-2 text-gray-500">
+            <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            <p>Loading runs…</p>
+          </div>
+        ) : !currentUser ? (
+          null
+        ) : (
+          <InfiniteScroll
+            dataLength={displayedRuns.length}
+            next={loadMoreRuns}
+            hasMore={hasMore}
+            loader={
+              <div className="sticky bottom-0 w-full bg-white/90 backdrop-blur-md p-4 text-center text-gray-500 flex flex-col items-center gap-2">
+                <div className="w-8 h-8 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+                <p className="m-0">Loading more runs…</p>
+              </div>
+            }
+            endMessage={
+              <div className="text-center p-8 text-gray-500">
+                <p><b>You've seen all {displayedRuns.length} runs!</b></p>
+              </div>
+            }
+          >
+            <div className="flex flex-col items-center mt-8 gap-4">
+              {displayedRuns.length > 0 ? (
+                displayedRuns.map((run) => {
+                  const profileName = getRunProfileName(run);
+                  const profileUsername = getRunProfileUsername(run);
+                  const profileId = getRunProfileId(run);
+                  const profilePictureUrl = getRunProfilePictureUrl(run);
+
+                  return (
+                    <div key={run.id} className="relative w-full max-w-2xl">
+                      {profileId && (
+                        <div
+                          onClick={() => navigate(`/profile/${profileId}`)}
+                          className="absolute top-2 left-2 bg-white/95 p-2 rounded-lg text-sm font-bold z-10 cursor-pointer transition-all duration-200 flex items-center gap-2 shadow-sm border border-gray-400 hover:bg-blue-500 hover:text-white hover:scale-105 hover:border-blue-500"
+                        >
+                          {profilePictureUrl && (
+                            <img
+                              src={profilePictureUrl}
+                              alt={`${profileName}'s profile`}
+                              className="w-8 h-8 rounded-full object-cover border-2 border-white"
+                            />
+                          )}
+                          <div>
+                            <div className="font-bold">{profileName}</div>
+                            {profileUsername && (
+                              <div className="text-xs opacity-80">@{profileUsername}</div>
+                            )}
+                          </div>
+                        </div>
                       )}
-                      <div>
-                        <div style={{ fontWeight: "bold" }}>{profileName}</div>
-                        {profileUsername && (
-                          <div style={{ fontSize: "0.75rem", opacity: 0.8 }}>@{profileUsername}</div>
-                        )}
-                      </div>
+                      <RunCard run={run} width="100%" />
                     </div>
-                  )}
-                  <RunCard run={run} width="100%" />
-                </div>
-              );
-            })
-          ) : currentUser ? (
-            <p>No runs from people you follow yet. Start following people to see their activities!</p>
+                  );
+                })
+              ) : (
+                <p>Follow people to see their runs!</p>
+              )}
+            </div>
+          </InfiniteScroll>
+        )}
+
+        <div className="text-center mt-8">
+          {currentUser ? (
+            <>
+              <p className="mb-4">Welcome back, {currentUser.get("firstName")}!</p>
+              <button
+                className="m-2.5 px-5 py-2.5 cursor-pointer bg-red-600 text-white border-none rounded hover:bg-red-700 transition-colors"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </>
           ) : (
-            <p>Please log in to see run activities.</p>
+            <>
+              <p className="mb-4">Please log in or register to continue.</p>
+              <button
+                className="m-2.5 px-5 py-2.5 cursor-pointer bg-blue-500 text-white border-none rounded hover:bg-blue-600 transition-colors"
+                onClick={() => navigate("/login")}
+              >
+                Login
+              </button>
+              <button
+                className="m-2.5 px-5 py-2.5 cursor-pointer bg-green-600 text-white border-none rounded hover:bg-green-700 transition-colors"
+                onClick={() => navigate("/register")}
+              >
+                Register
+              </button>
+            </>
           )}
         </div>
-      )}
-
-      <div style={{ textAlign: "center", marginTop: "2rem" }}>
-        {currentUser ? (
-          // User is logged in - show welcome message and logout button
-          <>
-            <p>Welcome back, {currentUser.get("firstName")}!</p>
-            <button
-              style={{
-                margin: "10px",
-                padding: "10px 20px",
-                cursor: "pointer",
-                backgroundColor: "#dc3545",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-              }}
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
-          </>
-        ) : (
-          // User is not logged in - show login/register buttons
-          <>
-            <p>Please log in or register to continue.</p>
-            <button
-              style={{
-                margin: "10px",
-                padding: "10px 20px",
-                cursor: "pointer",
-                backgroundColor: "#007bff",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-              }}
-              onClick={() => navigate("/login")}
-            >
-              Login
-            </button>
-            <button
-              style={{
-                margin: "10px",
-                padding: "10px 20px",
-                cursor: "pointer",
-                backgroundColor: "#28a745",
-                color: "white",
-                border: "none",
-                borderRadius: "5px",
-              }}
-              onClick={() => navigate("/register")}
-            >
-              Register
-            </button>
-          </>
-        )}
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }

@@ -35,33 +35,18 @@ export default function ProfileCard({ profile }) {
   return (
     <div
       onClick={handleClick}
-      style={{
-        border: "1px solid #ddd",
-        borderRadius: "12px",
-        padding: "1rem",
-        margin: "1rem",
-        textAlign: "center",
-        width: "200px",
-        cursor: "pointer",
-        transition: "transform 0.2s",
-      }}
+      className="border border-gray-300 rounded-xl p-4 text-center w-48 cursor-pointer transition-transform duration-200 hover:scale-105"
     >
       {profilePictureUrl && (
         <img
           src={profilePictureUrl}
           alt={`${name}'s profile`}
-          style={{
-            width: "100px",
-            height: "100px",
-            borderRadius: "50%",
-            objectFit: "cover",
-          }}
+          className="w-24 h-24 rounded-full object-cover mx-auto mb-3"
         />
       )}
-      <h3>{name}</h3>
-      <p>@{username}</p>
-      <p>{email}</p>
+      <h3 className="text-base font-bold mb-1 truncate">{name}</h3>
+      <p className="text-gray-600 text-sm mb-1 truncate">@{username}</p>
+      <p className="text-gray-500 text-sm truncate">{email}</p>
     </div>
   );
 }
-
